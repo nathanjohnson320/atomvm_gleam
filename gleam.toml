@@ -1,0 +1,8 @@
+name = "atomvm_gleam"
+version = "1.0.0"
+gleam = ">= 1.18.1"
+description = "Typed Gleam wrappers for AtomVM SPI, GPIO, and AtomGL display ports"
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+gleam_erlang = ">= 1.3.0 and < 2.0.0"

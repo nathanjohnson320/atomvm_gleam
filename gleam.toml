@@ -1,7 +1,7 @@
 name = "atomvm_gleam"
 version = "1.0.0"
 gleam = ">= 1.18.1"
-description = "Typed Gleam wrappers for AtomVM SPI, GPIO, and AtomGL display ports"
+description = "Typed Gleam wrappers for AtomVM peripherals, network, and AtomGL"
 licences = ["MIT"]
 
 [dependencies]

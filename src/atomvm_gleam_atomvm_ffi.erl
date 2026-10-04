@@ -448,18 +448,18 @@ posix_readdir(Dir) ->
                 {ok, {some, {posix_dirent, Inode, Name}}};
             eof ->
                 {ok, none};
-            {error, Reason} ->
-                wrap_reason(Reason);
+            {error, Err} ->
+                wrap_reason(Err);
             error ->
                 {error, failed}
         end
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason when is_atom(Reason) ->
-            wrap_reason(Reason);
-        error:{error, Reason} ->
-            wrap_reason(Reason);
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        error:{error, Thrown} ->
+            wrap_reason(Thrown);
         _:_ ->
             {error, failed}
     end.
@@ -469,18 +469,18 @@ subprocess(Path, Args, Env, Options) ->
         case atomvm:subprocess(Path, Args, env_list(Env), Options) of
             {ok, OsPid, Fd} ->
                 {ok, {OsPid, Fd}};
-            {error, Reason} ->
-                wrap_reason(Reason);
+            {error, Err} ->
+                wrap_reason(Err);
             error ->
                 {error, failed}
         end
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason when is_atom(Reason) ->
-            wrap_reason(Reason);
-        error:{error, Reason} ->
-            wrap_reason(Reason);
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        error:{error, Thrown} ->
+            wrap_reason(Thrown);
         _:_ ->
             {error, failed}
     end.

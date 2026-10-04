@@ -1,41 +1,51 @@
 -module(atomvm_gleam_network_ffi).
 -export([
-    start/8,
+    start/19,
     sta_connect/0,
     sta_connect_to/2,
     sta_disconnect/0,
     wifi_scan/1,
     wait_for_sta/3,
+    wait_for_ap/3,
+    sta_rssi/0,
+    sta_status/0,
     stop/0
 ]).
 
-start(Managed, Ssid, Psk, DhcpHostname, Notify, SntpEnabled, SntpHost, SntpNotify) ->
-    Sta =
-        maybe_managed(Managed) ++
-            opt(ssid, Ssid) ++
-            opt(psk, Psk) ++
-            opt(dhcp_hostname, DhcpHostname) ++
-            [
-                {scan_done, Notify},
-                {connected, fun() -> Notify ! connected end},
-                {got_ip, fun(Info) -> Notify ! {got_ip, Info} end},
-                {disconnected, fun() -> Notify ! disconnected end}
-            ],
+start(
+    StaEnabled,
+    Managed,
+    Ssid,
+    Psk,
+    DhcpHostname,
+    StaNotify,
+    ApEnabled,
+    ApSsid,
+    ApPsk,
+    ApChannel,
+    ApSsidHidden,
+    ApMaxConnections,
+    ApNotify,
+    SntpEnabled,
+    SntpHost,
+    SntpNotify,
+    MdnsEnabled,
+    MdnsHost,
+    MdnsTtl
+) ->
     Config =
-        case SntpEnabled of
-            true ->
-                [
-                    {sta, Sta},
-                    {sntp, [
-                        {host, SntpHost},
-                        {synchronized, fun(Timeval) ->
-                            SntpNotify ! {synchronized, Timeval}
-                        end}
-                    ]}
-                ];
-            false ->
-                [{sta, Sta}]
-        end,
+        maybe_sta(StaEnabled, Managed, Ssid, Psk, DhcpHostname, StaNotify) ++
+            maybe_ap(
+                ApEnabled,
+                ApSsid,
+                ApPsk,
+                ApChannel,
+                ApSsidHidden,
+                ApMaxConnections,
+                ApNotify
+            ) ++
+            maybe_sntp(SntpEnabled, SntpHost, SntpNotify) ++
+            maybe_mdns(MdnsEnabled, MdnsHost, MdnsTtl),
     case network:start(Config) of
         {ok, _Pid} ->
             {ok, nil};
@@ -70,8 +80,112 @@ wait_for_sta(Ssid, Psk, TimeoutMs) ->
             {error, failed}
     end.
 
+wait_for_ap(Ssid, Psk, TimeoutMs) ->
+    Config = opt(ssid, Ssid) ++ opt(psk, Psk),
+    case network:wait_for_ap(Config, TimeoutMs) of
+        ok ->
+            {ok, nil};
+        {error, Reason} ->
+            wrap_reason(Reason);
+        error ->
+            {error, failed}
+    end.
+
+sta_rssi() ->
+    case network:sta_rssi() of
+        {ok, Dbm} when is_integer(Dbm) ->
+            {ok, Dbm};
+        {error, Reason} ->
+            wrap_reason(Reason);
+        error ->
+            {error, failed}
+    end.
+
+sta_status() ->
+    try network:sta_status() of
+        associated ->
+            {ok, sta_associated};
+        connected ->
+            {ok, sta_connected};
+        connecting ->
+            {ok, sta_connecting};
+        degraded ->
+            {ok, sta_degraded};
+        disconnected ->
+            {ok, sta_disconnected};
+        disconnecting ->
+            {ok, sta_disconnecting};
+        inactive ->
+            {ok, sta_inactive};
+        Other ->
+            wrap_reason(Other)
+    catch
+        exit:{noproc, _} ->
+            {error, {other, <<"network_down">>}};
+        exit:{timeout, _} ->
+            {error, timeout};
+        exit:Reason ->
+            wrap_reason(Reason);
+        error:badarg ->
+            {error, badarg};
+        error:Reason ->
+            wrap_reason(Reason)
+    end.
+
 stop() ->
     wrap_ok(network:stop()).
+
+maybe_sta(false, _Managed, _Ssid, _Psk, _DhcpHostname, _Notify) ->
+    [];
+maybe_sta(true, Managed, Ssid, Psk, DhcpHostname, Notify) ->
+    Sta =
+        maybe_managed(Managed) ++
+            opt(ssid, Ssid) ++
+            opt(psk, Psk) ++
+            opt(dhcp_hostname, DhcpHostname) ++
+            [
+                {scan_done, Notify},
+                {connected, fun() -> Notify ! connected end},
+                {got_ip, fun(Info) -> Notify ! {got_ip, Info} end},
+                {disconnected, fun() -> Notify ! disconnected end}
+            ],
+    [{sta, Sta}].
+
+maybe_ap(false, _Ssid, _Psk, _Channel, _SsidHidden, _MaxConnections, _Notify) ->
+    [];
+maybe_ap(true, Ssid, Psk, Channel, SsidHidden, MaxConnections, Notify) ->
+    Ap =
+        opt(ssid, Ssid) ++
+            opt(psk, Psk) ++
+            opt(ap_channel, Channel) ++
+            opt(ap_ssid_hidden, SsidHidden) ++
+            opt(ap_max_connections, MaxConnections) ++
+            [
+                {ap_started, fun() -> Notify ! ap_started end},
+                {sta_connected, fun(Mac) -> Notify ! {sta_connected, Mac} end},
+                {sta_disconnected, fun(Mac) -> Notify ! {sta_disconnected, Mac} end},
+                {sta_ip_assigned, fun(Address) ->
+                    Notify ! {sta_ip_assigned, Address}
+                end}
+            ],
+    [{ap, Ap}].
+
+maybe_sntp(false, _Host, _Notify) ->
+    [];
+maybe_sntp(true, Host, Notify) ->
+    [
+        {sntp, [
+            {host, Host},
+            {synchronized, fun(Timeval) ->
+                Notify ! {synchronized, Timeval}
+            end}
+        ]}
+    ].
+
+maybe_mdns(false, _Host, _Ttl) ->
+    [];
+maybe_mdns(true, Host, Ttl) ->
+    [{mdns, [{host, Host}] ++ opt(ttl, Ttl)}].
 
 maybe_managed(true) ->
     [managed];

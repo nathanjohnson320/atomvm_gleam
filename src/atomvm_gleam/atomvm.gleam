@@ -64,7 +64,10 @@ pub fn add_avm_pack_file(path: String, name: String) -> Result(Nil, Error)
 ///
 /// See [`atomvm:add_avm_pack_binary/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#add-avm-pack-binary-2).
 @external(erlang, "atomvm_gleam_atomvm_ffi", "add_avm_pack_binary")
-pub fn add_avm_pack_binary(avm_data: BitArray, name: String) -> Result(Nil, Error)
+pub fn add_avm_pack_binary(
+  avm_data: BitArray,
+  name: String,
+) -> Result(Nil, Error)
 
 /// Close a previously mounted AVM pack referenced by `name`.
 ///

@@ -1,6 +1,11 @@
 /// UART driver wrappers for AtomVM.
 ///
-/// Edoc: [Module uart](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/uart.html)
+/// Peripheral `name` strings accepted by [`open`](#open) include `"UART0"`,
+/// `"UART1"`, `"UART2"`, and on ESP32 chips with built-in USB-Serial-JTAG,
+/// [`usb_serial_jtag_name`](#usb_serial_jtag_name) (`"USB_SERIAL_JTAG"`).
+/// RP2/STM32 USB CDC is a separate `usb_cdc` module, not this one.
+///
+/// Edoc: [Module uart](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart.html)
 /// (0.7 also documents [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html)).
 import gleam/option.{type Option}
 
@@ -33,7 +38,7 @@ pub type Parity {
 
 /// Options for [`open`](#open) / [`open_default`](#open_default).
 ///
-/// See [uart_opts()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/uart.html#uart-opts).
+/// See [uart_opts()](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart.html#uart-opts).
 pub type Config {
   Config(
     tx: Option(Int),
@@ -77,9 +82,20 @@ pub fn default_config() -> Config {
   )
 }
 
-/// Open a named UART peripheral (`"UART0"` / `"UART1"` / `"UART2"`).
+/// Peripheral name for ESP32 USB-Serial-JTAG (`"USB_SERIAL_JTAG"`).
 ///
-/// See [`uart:open/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/uart.html#open-2).
+/// Pass to [`open`](#open) on chips that expose the built-in USB-Serial-JTAG
+/// peripheral (for example ESP32-C3/C5/C6/C61/H2/S3/P4).
+///
+/// See [Module uart](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart.html).
+pub fn usb_serial_jtag_name() -> String {
+  "USB_SERIAL_JTAG"
+}
+
+/// Open a named UART peripheral (`"UART0"` / `"UART1"` / `"UART2"` /
+/// `"USB_SERIAL_JTAG"`).
+///
+/// See [`uart:open/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart.html#open-2).
 pub fn open(name: String, config: Config) -> Result(Uart, Error) {
   let Config(
     tx:,
@@ -110,7 +126,7 @@ pub fn open(name: String, config: Config) -> Result(Uart, Error) {
 
 /// Open the default UART with the given options.
 ///
-/// See [`uart:open/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/uart.html#open-1).
+/// See [`uart:open/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart.html#open-1).
 pub fn open_default(config: Config) -> Result(Uart, Error) {
   let Config(
     tx:,

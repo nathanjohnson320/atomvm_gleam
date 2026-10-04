@@ -25,8 +25,8 @@ start_link(Hostname, A, B, C, D, Ttl) ->
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason when is_atom(Reason) ->
-            wrap_reason(Reason);
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
         _:_ ->
             {error, failed}
     end.
@@ -37,8 +37,8 @@ stop(Server) ->
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason when is_atom(Reason) ->
-            wrap_reason(Reason);
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
         _:_ ->
             {error, failed}
     end.

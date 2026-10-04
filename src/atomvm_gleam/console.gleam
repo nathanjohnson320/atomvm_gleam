@@ -4,7 +4,6 @@
 ///
 /// Upstream: [`console.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl)
 /// · Docs: [Module console](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/console.html)
-
 /// Errors from console operations.
 pub type Error {
   Failed

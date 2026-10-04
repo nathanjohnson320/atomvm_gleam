@@ -17,8 +17,8 @@ start_server(Port, Routes) ->
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason ->
-            wrap_reason(Reason)
+        error:CatchReason ->
+            wrap_reason(CatchReason)
     end.
 
 reply(StatusCode, Body, Conn) ->
@@ -34,8 +34,8 @@ parse_query_string(Query) when is_binary(Query) ->
     catch
         error:badarg ->
             {error, badarg};
-        error:Reason ->
-            wrap_reason(Reason)
+        error:CatchReason ->
+            wrap_reason(CatchReason)
     end;
 parse_query_string(Query) when is_list(Query) ->
     parse_query_string(unicode:characters_to_binary(Query));

@@ -78,10 +78,7 @@ pub fn route(path: String, module: Atom) -> Route {
 /// this wrapper maps a non-pid result to [`Failed`](#Error).
 ///
 /// See [`http_server:start_server/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
-pub fn start_server(
-  port: Int,
-  routes: List(Route),
-) -> Result(Pid, Error) {
+pub fn start_server(port: Int, routes: List(Route)) -> Result(Pid, Error) {
   start_server_ffi(port, routes)
 }
 
@@ -117,7 +114,4 @@ pub fn parse_query_string(
 ) -> Result(List(#(String, String)), Error)
 
 @external(erlang, "atomvm_gleam_http_server_ffi", "start_server")
-fn start_server_ffi(
-  port: Int,
-  routes: List(Route),
-) -> Result(Pid, Error)
+fn start_server_ffi(port: Int, routes: List(Route)) -> Result(Pid, Error)

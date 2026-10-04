@@ -90,8 +90,14 @@ pub fn timer_config(config: TimerConfig) -> Result(Nil, Error) {
 ///
 /// See [`ledc:channel_config/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#channel-config-1).
 pub fn channel_config(config: ChannelConfig) -> Result(Nil, Error) {
-  let ChannelConfig(channel:, duty:, gpio_num:, speed_mode:, hpoint:, timer_sel:) =
-    config
+  let ChannelConfig(
+    channel:,
+    duty:,
+    gpio_num:,
+    speed_mode:,
+    hpoint:,
+    timer_sel:,
+  ) = config
   channel_config_ffi(channel, duty, gpio_num, speed_mode, hpoint, timer_sel)
 }
 
@@ -109,9 +115,125 @@ pub fn set_duty(
 ///
 /// See [`ledc:update_duty/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#update-duty-2).
 @external(erlang, "atomvm_gleam_ledc_ffi", "update_duty")
-pub fn update_duty(
+pub fn update_duty(speed_mode: SpeedMode, channel: Int) -> Result(Nil, Error)
+
+/// Install the LEDC fade function (occupies the LEDC interrupt).
+///
+/// See [`ledc:fade_func_install/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-func-install-1).
+@external(erlang, "atomvm_gleam_ledc_ffi", "fade_func_install")
+pub fn fade_func_install(flags: Int) -> Result(Nil, Error)
+
+/// Uninstall the LEDC fade function.
+///
+/// See [`ledc:fade_func_uninstall/0`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-func-uninstall-0).
+@external(erlang, "atomvm_gleam_ledc_ffi", "fade_func_uninstall")
+pub fn fade_func_uninstall() -> Result(Nil, Error)
+
+/// Configure a time-limited fade. Call [`fade_start`](#fade_start) afterward.
+///
+/// See [`ledc:set_fade_with_time/4`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-fade-with-time-4).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_with_time")
+pub fn set_fade_with_time(
   speed_mode: SpeedMode,
   channel: Int,
+  target_duty: Int,
+  max_fade_time_ms: Int,
+) -> Result(Nil, Error)
+
+/// Configure a step-based fade. Call [`fade_start`](#fade_start) afterward.
+///
+/// See [`ledc:set_fade_with_step/5`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-fade-with-step-5).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_with_step")
+pub fn set_fade_with_step(
+  speed_mode: SpeedMode,
+  channel: Int,
+  target_duty: Int,
+  scale: Int,
+  cycle_num: Int,
+) -> Result(Nil, Error)
+
+/// Atomically configure a time-limited fade and start it.
+///
+/// See [`ledc:set_fade_time_and_start/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_time_and_start")
+pub fn set_fade_time_and_start(
+  speed_mode: SpeedMode,
+  channel: Int,
+  target_duty: Int,
+  max_fade_time_ms: Int,
+  fade_mode: Int,
+) -> Result(Nil, Error)
+
+/// Atomically configure a step-based fade and start it.
+///
+/// See [`ledc:set_fade_step_and_start/6`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_step_and_start")
+pub fn set_fade_step_and_start(
+  speed_mode: SpeedMode,
+  channel: Int,
+  target_duty: Int,
+  scale: Int,
+  cycle_num: Int,
+  fade_mode: Int,
+) -> Result(Nil, Error)
+
+/// Start a previously configured fade.
+///
+/// See [`ledc:fade_start/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-start-3).
+@external(erlang, "atomvm_gleam_ledc_ffi", "fade_start")
+pub fn fade_start(
+  speed_mode: SpeedMode,
+  channel: Int,
+  fade_mode: Int,
+) -> Result(Nil, Error)
+
+/// Stop an in-progress fade (platforms with `SOC_LEDC_SUPPORT_FADE_STOP` only).
+///
+/// See [`ledc:fade_stop/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
+@external(erlang, "atomvm_gleam_ledc_ffi", "fade_stop")
+pub fn fade_stop(speed_mode: SpeedMode, channel: Int) -> Result(Nil, Error)
+
+/// Set duty and hpoint and apply them immediately (thread-safe).
+///
+/// See [`ledc:set_duty_and_update/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_duty_and_update")
+pub fn set_duty_and_update(
+  speed_mode: SpeedMode,
+  channel: Int,
+  duty: Int,
+  hpoint: Int,
+) -> Result(Nil, Error)
+
+/// Read the current duty for a channel.
+///
+/// See [`ledc:get_duty/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#get-duty-2).
+@external(erlang, "atomvm_gleam_ledc_ffi", "get_duty")
+pub fn get_duty(speed_mode: SpeedMode, channel: Int) -> Result(Int, Error)
+
+/// Read the current timer frequency in Hz.
+///
+/// See [`ledc:get_freq/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#get-freq-2).
+@external(erlang, "atomvm_gleam_ledc_ffi", "get_freq")
+pub fn get_freq(speed_mode: SpeedMode, timer_num: Int) -> Result(Int, Error)
+
+/// Set the timer frequency in Hz.
+///
+/// See [`ledc:set_freq/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-freq-3).
+@external(erlang, "atomvm_gleam_ledc_ffi", "set_freq")
+pub fn set_freq(
+  speed_mode: SpeedMode,
+  timer_num: Int,
+  freq_hz: Int,
+) -> Result(Nil, Error)
+
+/// Stop LEDC output on a channel and set the idle level.
+///
+/// See [`ledc:stop/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#stop-3).
+@external(erlang, "atomvm_gleam_ledc_ffi", "stop")
+pub fn stop(
+  speed_mode: SpeedMode,
+  channel: Int,
+  idle_level: Int,
 ) -> Result(Nil, Error)
 
 @external(erlang, "atomvm_gleam_ledc_ffi", "timer_config")

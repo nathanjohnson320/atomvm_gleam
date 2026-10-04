@@ -1,10 +1,10 @@
-/// ESP32 digital-to-analog converter (DAC) oneshot channel APIs.
-///
-/// Source: [`libs/avm_esp32/src/esp_dac.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
-///
-/// ESP32 classic has two 8-bit DAC channels (`chan_id` `0` and `1`). Create a
-/// oneshot channel, write a level with [`oneshot_output_voltage`](#oneshot_output_voltage),
-/// then release it with [`oneshot_del_channel`](#oneshot_del_channel).
+//// ESP32 digital-to-analog converter (DAC) oneshot channel APIs.
+////
+//// Source: [`libs/avm_esp32/src/esp_dac.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
+////
+//// ESP32 classic has two 8-bit DAC channels (`chan_id` `0` and `1`). Create a
+//// oneshot channel, write a level with [`oneshot_output_voltage`](#oneshot_output_voltage),
+//// then release it with [`oneshot_del_channel`](#oneshot_del_channel).
 
 /// Opaque DAC channel resource from [`new_channel`](#new_channel).
 ///
@@ -68,7 +68,10 @@ pub fn new_channel(
 ///
 /// See [`esp_dac:oneshot_output_voltage/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
 @external(erlang, "atomvm_gleam_esp_dac_ffi", "oneshot_output_voltage")
-pub fn oneshot_output_voltage(channel: Channel, level: Int) -> Result(Nil, Error)
+pub fn oneshot_output_voltage(
+  channel: Channel,
+  level: Int,
+) -> Result(Nil, Error)
 
 /// Delete a oneshot DAC channel and release its resource.
 ///

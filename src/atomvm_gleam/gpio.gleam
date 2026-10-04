@@ -1,3 +1,13 @@
+//// Typed Gleam wrappers for AtomVM GPIO.
+////
+//// ESP32 source: [`libs/avm_esp32/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+//// RP2 source: [`libs/avm_rp2/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+//// Edoc fallback: [Module gpio](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html).
+////
+//// On Pico-W, the onboard LED is the wireless-bank pin `WlPin(0)` (Erlang
+//// `{wl, 0}`). Prefer `digital_write(wl(0), …)` for that LED; the forthcoming
+//// `pico` module CYW43 helpers are an alternate API for the same hardware.
+
 import gleam/erlang/process.{type Pid}
 
 /// Opaque handle for the AtomVM GPIO driver port (`gpio:open/0` / `gpio:start/0`).
@@ -18,6 +28,30 @@ pub type Error {
   Badarg
   Timeout
   Other(String)
+}
+
+/// GPIO pin. `PinNum` is a plain GPIO number (ESP32 and RP2). `WlPin` is a
+/// Pico-W wireless-bank pin and encodes as Erlang `{wl, N}` in the FFI.
+///
+/// Use `pin/1` and `wl/1` helpers at call sites. On Pico-W the onboard LED is
+/// `wl(0)` / `WlPin(0)` (`{wl, 0}`); `pico` CYW43 helpers are an alternate API.
+///
+/// See RP2 [pin()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+pub type Pin {
+  PinNum(Int)
+  WlPin(Int)
+}
+
+/// Wrap a numeric GPIO pin as `PinNum`.
+pub fn pin(n: Int) -> Pin {
+  PinNum(n)
+}
+
+/// Wrap a Pico-W wireless-bank pin as `WlPin` (Erlang `{wl, N}`).
+///
+/// Example: Pico-W LED is `wl(0)`.
+pub fn wl(n: Int) -> Pin {
+  WlPin(n)
 }
 
 /// Pin direction. Zero-arity variants encode as Erlang atoms matching
@@ -61,6 +95,21 @@ pub type Pull {
   Floating
 }
 
+/// RP2 GPIO function select (`gpio:set_function/2`). Encodes as Erlang atoms
+/// matching Pico SDK `gpio_function_t`: `spi`, `uart`, `i2c`, `pwm`, `sio`,
+/// `pio0`, `pio1`.
+///
+/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+pub type GpioFunction {
+  Spi
+  Uart
+  I2c
+  Pwm
+  Sio
+  Pio0
+  Pio1
+}
+
 /// Format an `Error` for logging.
 pub fn error_to_string(error: Error) -> String {
   case error {
@@ -102,7 +151,7 @@ pub fn stop() -> Result(Nil, Error)
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_direction")
 pub fn set_direction(
   gpio: Gpio,
-  pin: Int,
+  pin: Pin,
   direction: Direction,
 ) -> Result(Nil, Error)
 
@@ -110,19 +159,19 @@ pub fn set_direction(
 ///
 /// See [`gpio:set_level/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#set-level-3).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_level")
-pub fn set_level(gpio: Gpio, pin: Int, level: Level) -> Result(Nil, Error)
+pub fn set_level(gpio: Gpio, pin: Pin, level: Level) -> Result(Nil, Error)
 
 /// Read the digital state of a pin via the port API.
 ///
 /// See [`gpio:read/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#read-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "read")
-pub fn read(gpio: Gpio, pin: Int) -> Result(Level, Error)
+pub fn read(gpio: Gpio, pin: Pin) -> Result(Level, Error)
 
 /// Set a GPIO interrupt. Delivers `{gpio_interrupt, Pin}` to the caller.
 ///
 /// See [`gpio:set_int/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#set-int-3).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_int")
-pub fn set_int(gpio: Gpio, pin: Int, trigger: Trigger) -> Result(Nil, Error)
+pub fn set_int(gpio: Gpio, pin: Pin, trigger: Trigger) -> Result(Nil, Error)
 
 /// Set a GPIO interrupt, delivering `{gpio_interrupt, Pin}` to `pid`.
 ///
@@ -130,7 +179,7 @@ pub fn set_int(gpio: Gpio, pin: Int, trigger: Trigger) -> Result(Nil, Error)
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_int_to")
 pub fn set_int_to(
   gpio: Gpio,
-  pin: Int,
+  pin: Pin,
   trigger: Trigger,
   pid: Pid,
 ) -> Result(Nil, Error)
@@ -139,68 +188,81 @@ pub fn set_int_to(
 ///
 /// See [`gpio:remove_int/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#remove-int-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "remove_int")
-pub fn remove_int(gpio: Gpio, pin: Int) -> Result(Nil, Error)
+pub fn remove_int(gpio: Gpio, pin: Pin) -> Result(Nil, Error)
 
 /// Convenience for `set_int/3` using only pin and trigger.
 /// Prefer `set_int` when arming more than one pin.
 ///
 /// See [`gpio:attach_interrupt/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#attach-interrupt-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "attach_interrupt")
-pub fn attach_interrupt(pin: Int, trigger: Trigger) -> Result(Nil, Error)
+pub fn attach_interrupt(pin: Pin, trigger: Trigger) -> Result(Nil, Error)
 
-/// Convenience for `remove_int/2` using only the pin number.
+/// Convenience for `remove_int/2` using only the pin.
 ///
 /// See [`gpio:detach_interrupt/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#detach-interrupt-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "detach_interrupt")
-pub fn detach_interrupt(pin: Int) -> Result(Nil, Error)
+pub fn detach_interrupt(pin: Pin) -> Result(Nil, Error)
 
 /// Initialize a pin for GPIO use (required on RP2040; some ESP32 pins).
 ///
 /// See [`gpio:init/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#init-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "init")
-pub fn init(pin: Int) -> Result(Nil, Error)
+pub fn init(pin: Pin) -> Result(Nil, Error)
 
 /// Reset a pin back to the NULL function (RP2040).
 ///
 /// See [`gpio:deinit/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#deinit-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "deinit")
-pub fn deinit(pin: Int) -> Result(Nil, Error)
+pub fn deinit(pin: Pin) -> Result(Nil, Error)
+
+/// Select the function for a GPIO pin (RP2 / Pico SDK `gpio_set_function`).
+/// Takes a numeric pin only; wireless-bank pins are not supported by upstream.
+///
+/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+@external(erlang, "atomvm_gleam_gpio_ffi", "set_function")
+pub fn set_function(pin: Int, function: GpioFunction) -> Result(Nil, Error)
 
 /// Set pin mode without a port handle (NIF-style API).
 ///
 /// See [`gpio:set_pin_mode/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#set-pin-mode-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_pin_mode")
-pub fn set_pin_mode(pin: Int, direction: Direction) -> Result(Nil, Error)
+pub fn set_pin_mode(pin: Pin, direction: Direction) -> Result(Nil, Error)
 
 /// Set the internal resistor of a pin (not used on STM32).
 ///
 /// See [`gpio:set_pin_pull/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#set-pin-pull-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_pin_pull")
-pub fn set_pin_pull(pin: Int, pull: Pull) -> Result(Nil, Error)
+pub fn set_pin_pull(pin: Pin, pull: Pull) -> Result(Nil, Error)
 
 /// Read pin level via the NIF-style API.
 ///
+/// On Pico-W, VBUS detect is readable as `wl(2)` without prior mode/pull setup.
+///
 /// See [`gpio:digital_read/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#digital-read-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "digital_read")
-pub fn digital_read(pin: Int) -> Result(Level, Error)
+pub fn digital_read(pin: Pin) -> Result(Level, Error)
 
 /// Write pin level via the NIF-style API.
 ///
+/// On Pico-W, the onboard LED is `wl(0)` / `{wl, 0}` and does not require
+/// `set_pin_mode` or `set_pin_pull` before use. The `pico` module CYW43 helpers
+/// are an alternate API for the same LED.
+///
 /// See [`gpio:digital_write/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#digital-write-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "digital_write")
-pub fn digital_write(pin: Int, level: Level) -> Result(Nil, Error)
+pub fn digital_write(pin: Pin, level: Level) -> Result(Nil, Error)
 
 /// Hold the state of a pin (ESP32).
 ///
 /// See [`gpio:hold_en/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#hold-en-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "hold_en")
-pub fn hold_en(pin: Int) -> Result(Nil, Error)
+pub fn hold_en(pin: Pin) -> Result(Nil, Error)
 
 /// Release a pin from a hold state (ESP32).
 ///
 /// See [`gpio:hold_dis/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#hold-dis-1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "hold_dis")
-pub fn hold_dis(pin: Int) -> Result(Nil, Error)
+pub fn hold_dis(pin: Pin) -> Result(Nil, Error)
 
 /// Enable all hold functions to continue in deep sleep (ESP32).
 ///
@@ -218,4 +280,4 @@ pub fn deep_sleep_hold_dis() -> Result(Nil, Error)
 ///
 /// See [`gpio:wakeup_enable/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#wakeup-enable-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "wakeup_enable")
-pub fn wakeup_enable(pin: Int, level: Level) -> Result(Nil, Error)
+pub fn wakeup_enable(pin: Pin, level: Level) -> Result(Nil, Error)

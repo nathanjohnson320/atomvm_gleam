@@ -14,6 +14,7 @@
     detach_interrupt/1,
     init/1,
     deinit/1,
+    set_function/2,
     set_pin_mode/2,
     set_pin_pull/2,
     digital_read/1,
@@ -38,52 +39,55 @@ stop() ->
     wrap_ok(gpio:stop()).
 
 set_direction(Gpio, Pin, Direction) ->
-    wrap_ok(gpio:set_direction(Gpio, Pin, Direction)).
+    wrap_ok(gpio:set_direction(Gpio, pin_term(Pin), Direction)).
 
 set_level(Gpio, Pin, Level) ->
-    wrap_ok(gpio:set_level(Gpio, Pin, level_atom(Level))).
+    wrap_ok(gpio:set_level(Gpio, pin_term(Pin), level_atom(Level))).
 
 read(Gpio, Pin) ->
-    wrap_level(gpio:read(Gpio, Pin)).
+    wrap_level(gpio:read(Gpio, pin_term(Pin))).
 
 set_int(Gpio, Pin, Trigger) ->
-    wrap_ok(gpio:set_int(Gpio, Pin, Trigger)).
+    wrap_ok(gpio:set_int(Gpio, pin_term(Pin), Trigger)).
 
 set_int_to(Gpio, Pin, Trigger, Pid) ->
-    wrap_ok(gpio:set_int(Gpio, Pin, Trigger, Pid)).
+    wrap_ok(gpio:set_int(Gpio, pin_term(Pin), Trigger, Pid)).
 
 remove_int(Gpio, Pin) ->
-    wrap_ok(gpio:remove_int(Gpio, Pin)).
+    wrap_ok(gpio:remove_int(Gpio, pin_term(Pin))).
 
 attach_interrupt(Pin, Trigger) ->
-    wrap_ok(gpio:attach_interrupt(Pin, Trigger)).
+    wrap_ok(gpio:attach_interrupt(pin_term(Pin), Trigger)).
 
 detach_interrupt(Pin) ->
-    wrap_ok(gpio:detach_interrupt(Pin)).
+    wrap_ok(gpio:detach_interrupt(pin_term(Pin))).
 
 init(Pin) ->
-    wrap_ok(gpio:init(Pin)).
+    wrap_ok(gpio:init(pin_term(Pin))).
 
 deinit(Pin) ->
-    wrap_ok(gpio:deinit(Pin)).
+    wrap_ok(gpio:deinit(pin_term(Pin))).
+
+set_function(Pin, Function) ->
+    wrap_ok(gpio:set_function(Pin, Function)).
 
 set_pin_mode(Pin, Direction) ->
-    wrap_ok(gpio:set_pin_mode(Pin, Direction)).
+    wrap_ok(gpio:set_pin_mode(pin_term(Pin), Direction)).
 
 set_pin_pull(Pin, Pull) ->
-    wrap_ok(gpio:set_pin_pull(Pin, Pull)).
+    wrap_ok(gpio:set_pin_pull(pin_term(Pin), Pull)).
 
 digital_read(Pin) ->
-    wrap_level(gpio:digital_read(Pin)).
+    wrap_level(gpio:digital_read(pin_term(Pin))).
 
 digital_write(Pin, Level) ->
-    wrap_ok(gpio:digital_write(Pin, level_atom(Level))).
+    wrap_ok(gpio:digital_write(pin_term(Pin), level_atom(Level))).
 
 hold_en(Pin) ->
-    wrap_ok(gpio:hold_en(Pin)).
+    wrap_ok(gpio:hold_en(pin_term(Pin))).
 
 hold_dis(Pin) ->
-    wrap_ok(gpio:hold_dis(Pin)).
+    wrap_ok(gpio:hold_dis(pin_term(Pin))).
 
 deep_sleep_hold_en() ->
     wrap_ok(gpio:deep_sleep_hold_en()).
@@ -92,7 +96,13 @@ deep_sleep_hold_dis() ->
     wrap_ok(gpio:deep_sleep_hold_dis()).
 
 wakeup_enable(Pin, Level) ->
-    wrap_ok(gpio:wakeup_enable(Pin, level_atom(Level))).
+    wrap_ok(gpio:wakeup_enable(pin_term(Pin), level_atom(Level))).
+
+%% Gleam `PinNum(N)` / `WlPin(N)` → AtomVM pin term (`N` or `{wl, N}`).
+pin_term({pin_num, N}) when is_integer(N) ->
+    N;
+pin_term({wl_pin, N}) when is_integer(N) ->
+    {wl, N}.
 
 level_atom(pin_high) ->
     high;

@@ -1,5 +1,15 @@
 -module(atomvm_gleam_i2c_ffi).
--export([open/3, close/1, read_bytes/4, write_bytes/4]).
+-export([
+    open/3,
+    close/1,
+    begin_transmission/2,
+    write_byte/2,
+    write_transmission_bytes/2,
+    end_transmission/1,
+    read_bytes/4,
+    write_bytes_to/3,
+    write_bytes/4
+]).
 
 open(Scl, Sda, ClockSpeedHz) ->
     try
@@ -21,8 +31,23 @@ open(Scl, Sda, ClockSpeedHz) ->
 close(Bus) ->
     wrap_ok(i2c:close(Bus)).
 
+begin_transmission(Bus, Address) ->
+    wrap_ok(i2c:begin_transmission(Bus, Address)).
+
+write_byte(Bus, Byte) ->
+    wrap_ok(i2c:write_byte(Bus, Byte)).
+
+write_transmission_bytes(Bus, Data) ->
+    wrap_ok(i2c:write_bytes(Bus, Data)).
+
+end_transmission(Bus) ->
+    wrap_ok(i2c:end_transmission(Bus)).
+
 read_bytes(Bus, Address, Register, Count) ->
     wrap_value(i2c:read_bytes(Bus, Address, Register, Count)).
+
+write_bytes_to(Bus, Address, Data) ->
+    wrap_ok(i2c:write_bytes(Bus, Address, Data)).
 
 write_bytes(Bus, Address, Register, Data) ->
     wrap_ok(i2c:write_bytes(Bus, Address, Register, Data)).

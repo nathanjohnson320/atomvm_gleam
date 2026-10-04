@@ -92,10 +92,7 @@ pub fn write_byte(bus: Bus, byte: Int) -> Result(Nil, Error)
 ///
 /// See [`i2c:write_bytes/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_transmission_bytes")
-pub fn write_transmission_bytes(
-  bus: Bus,
-  data: BitArray,
-) -> Result(Nil, Error)
+pub fn write_transmission_bytes(bus: Bus, data: BitArray) -> Result(Nil, Error)
 
 /// End a framed write started with `begin_transmission`.
 ///

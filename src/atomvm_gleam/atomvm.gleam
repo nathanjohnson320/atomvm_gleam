@@ -8,6 +8,13 @@
 /// Note: AtomVM's `rand_bytes/1` is deprecated in favor of
 /// `crypto:strong_rand_bytes/1`. Prefer a crypto wrapper when available; this
 /// module does not wrap the deprecated API.
+///
+/// POSIX file, directory, and subprocess APIs below are **platform-dependent**.
+/// They are typically available on `generic_unix` and some MCU builds that
+/// expose the corresponding NIFs; other platforms return `NotSupported` or
+/// raise at runtime.
+import gleam/erlang/process.{type Pid}
+import gleam/erlang/reference.{type Reference}
 import gleam/option.{type Option}
 
 /// Errors from AtomVM platform helpers.
@@ -123,3 +130,267 @@ pub fn posix_clock_settime(
   clock_id: ClockId,
   value_since_unix_epoch: #(Int, Int),
 ) -> Result(Nil, Error)
+
+/// Opaque POSIX file descriptor (`atomvm:posix_fd()`).
+///
+/// Closed automatically when garbage-collected; prefer
+/// [`posix_close`](#posix_close) when done.
+pub type PosixFd
+
+/// Opaque POSIX directory handle (`atomvm:posix_dir()`).
+pub type PosixDir
+
+/// Flags for [`posix_open`](#posix_open) / [`posix_open_mode`](#posix_open_mode).
+///
+/// Encode as Erlang atoms matching `atomvm:posix_open_flag()`.
+///
+/// See [`atomvm:posix_open/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-open-2).
+pub type PosixOpenFlag {
+  OExec
+  ORdonly
+  ORdwr
+  OSearch
+  OWronly
+  OAppend
+  OCloexec
+  OCreat
+  ODirectory
+  ODsync
+  OExcl
+  ONoctty
+  ONofollow
+  ORsync
+  OSync
+  OTrunc
+  OTtyAtom
+}
+
+/// Seek reference point for [`posix_seek`](#posix_seek).
+pub type PosixWhence {
+  SeekSet
+  SeekCur
+  SeekEnd
+}
+
+/// File status from [`posix_stat`](#posix_stat) / [`posix_fstat`](#posix_fstat).
+pub type PosixStatInfo {
+  PosixStatInfo(
+    st_dev: Int,
+    st_ino: Int,
+    st_mode: Int,
+    st_nlink: Int,
+    st_uid: Int,
+    st_gid: Int,
+    st_size: Int,
+    st_atime_s: Int,
+    st_mtime_s: Int,
+    st_ctime_s: Int,
+  )
+}
+
+/// Directory entry from [`posix_readdir`](#posix_readdir).
+pub type PosixDirent {
+  PosixDirent(inode: Int, name: BitArray)
+}
+
+/// Subprocess option for [`subprocess`](#subprocess). Currently only `Stdout`.
+pub type SubprocessOption {
+  Stdout
+}
+
+/// Open a file with `open(3)` flags (non-blocking by default).
+///
+/// Platform-dependent: typically `generic_unix` / MCU builds with POSIX NIFs.
+///
+/// See [`atomvm:posix_open/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-open-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_open")
+pub fn posix_open(
+  path: String,
+  flags: List(PosixOpenFlag),
+) -> Result(PosixFd, Error)
+
+/// Open a file, specifying creation `mode` bits.
+///
+/// See [`atomvm:posix_open/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-open-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_open_mode")
+pub fn posix_open_mode(
+  path: String,
+  flags: List(PosixOpenFlag),
+  mode: Int,
+) -> Result(PosixFd, Error)
+
+/// Close a file opened with [`posix_open`](#posix_open).
+///
+/// See [`atomvm:posix_close/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-close-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_close")
+pub fn posix_close(file: PosixFd) -> Result(Nil, Error)
+
+/// Read at most `count` bytes. `Ok(None)` means end-of-file.
+///
+/// See [`atomvm:posix_read/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-read-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_read")
+pub fn posix_read(file: PosixFd, count: Int) -> Result(Option(BitArray), Error)
+
+/// Write `data` to an open file. Returns bytes written.
+///
+/// See [`atomvm:posix_write/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-write-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_write")
+pub fn posix_write(file: PosixFd, data: BitArray) -> Result(Int, Error)
+
+/// Subscribe `pid` to read-readiness on `file`.
+///
+/// When readable, `{select, File, Ref, ready_input}` is sent. `ref` of `None`
+/// passes `undefined` upstream.
+///
+/// See [`atomvm:posix_select_read/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-select-read-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_select_read")
+pub fn posix_select_read(
+  file: PosixFd,
+  pid: Pid,
+  ref: Option(Reference),
+) -> Result(Nil, Error)
+
+/// Subscribe `pid` to write-readiness on `file`.
+///
+/// See [`atomvm:posix_select_write/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-select-write-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_select_write")
+pub fn posix_select_write(
+  file: PosixFd,
+  pid: Pid,
+  ref: Option(Reference),
+) -> Result(Nil, Error)
+
+/// Cancel a prior select subscription on `file`.
+///
+/// See [`atomvm:posix_select_stop/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-select-stop-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_select_stop")
+pub fn posix_select_stop(file: PosixFd) -> Result(Nil, Error)
+
+/// Reposition the file cursor (`lseek(2)`). Returns the absolute offset.
+///
+/// See [`atomvm:posix_seek/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-seek-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_seek")
+pub fn posix_seek(
+  file: PosixFd,
+  offset: Int,
+  whence: PosixWhence,
+) -> Result(Int, Error)
+
+/// Read at most `count` bytes at `offset` without moving the cursor.
+///
+/// `Ok(None)` means end-of-file.
+///
+/// See [`atomvm:posix_pread/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-pread-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_pread")
+pub fn posix_pread(
+  file: PosixFd,
+  count: Int,
+  offset: Int,
+) -> Result(Option(BitArray), Error)
+
+/// Write `data` at `offset` without moving the cursor. Returns bytes written.
+///
+/// See [`atomvm:posix_pwrite/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-pwrite-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_pwrite")
+pub fn posix_pwrite(
+  file: PosixFd,
+  data: BitArray,
+  offset: Int,
+) -> Result(Int, Error)
+
+/// Flush file data to storage (`fsync(2)`).
+///
+/// See [`atomvm:posix_fsync/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-fsync-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_fsync")
+pub fn posix_fsync(file: PosixFd) -> Result(Nil, Error)
+
+/// Truncate an open file to `length` bytes (`ftruncate(2)`).
+///
+/// See [`atomvm:posix_ftruncate/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-ftruncate-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_ftruncate")
+pub fn posix_ftruncate(file: PosixFd, length: Int) -> Result(Nil, Error)
+
+/// Create a FIFO special file (`mkfifo(2)`).
+///
+/// See [`atomvm:posix_mkfifo/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-mkfifo-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_mkfifo")
+pub fn posix_mkfifo(path: String, mode: Int) -> Result(Nil, Error)
+
+/// Create a directory (`mkdir(2)`).
+///
+/// See [`atomvm:posix_mkdir/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-mkdir-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_mkdir")
+pub fn posix_mkdir(path: String, mode: Int) -> Result(Nil, Error)
+
+/// Remove a file (`unlink(2)`).
+///
+/// See [`atomvm:posix_unlink/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-unlink-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_unlink")
+pub fn posix_unlink(path: String) -> Result(Nil, Error)
+
+/// Remove an empty directory (`rmdir(2)`).
+///
+/// See [`atomvm:posix_rmdir/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-rmdir-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_rmdir")
+pub fn posix_rmdir(path: String) -> Result(Nil, Error)
+
+/// Rename a file or directory (`rename(2)`).
+///
+/// See [`atomvm:posix_rename/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-rename-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_rename")
+pub fn posix_rename(old_path: String, new_path: String) -> Result(Nil, Error)
+
+/// File status for `path` (`stat(2)`).
+///
+/// See [`atomvm:posix_stat/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-stat-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_stat")
+pub fn posix_stat(path: String) -> Result(PosixStatInfo, Error)
+
+/// File status for an open descriptor (`fstat(2)`).
+///
+/// See [`atomvm:posix_fstat/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-fstat-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_fstat")
+pub fn posix_fstat(file: PosixFd) -> Result(PosixStatInfo, Error)
+
+/// Open a directory (`opendir(3)`).
+///
+/// See [`atomvm:posix_opendir/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-opendir-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_opendir")
+pub fn posix_opendir(path: String) -> Result(PosixDir, Error)
+
+/// Close a directory opened with [`posix_opendir`](#posix_opendir).
+///
+/// See [`atomvm:posix_closedir/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-closedir-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_closedir")
+pub fn posix_closedir(dir: PosixDir) -> Result(Nil, Error)
+
+/// Read the next directory entry. `Ok(None)` means end-of-directory.
+///
+/// See [`atomvm:posix_readdir/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-readdir-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_readdir")
+pub fn posix_readdir(dir: PosixDir) -> Result(Option(PosixDirent), Error)
+
+/// Fork and execute a program, piping stdout for [`posix_read`](#posix_read).
+///
+/// Returns `#(os_pid, stdout_fd)`. `env` of `None` uses the VM environment.
+/// `options` should include [`Stdout`](#SubprocessOption).
+///
+/// Platform-dependent (typically `generic_unix`).
+///
+/// See [`atomvm:subprocess/4`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#subprocess-4).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "subprocess")
+pub fn subprocess(
+  path: String,
+  args: List(String),
+  env: Option(List(String)),
+  options: List(SubprocessOption),
+) -> Result(#(Int, PosixFd), Error)
+
+/// Send signal `signal` to OS process `os_pid` (`kill(2)`).
+///
+/// Typically used to terminate a process from [`subprocess`](#subprocess).
+/// AtomVM 0.7 beta API.
+///
+/// See [`atomvm:posix_kill/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-kill-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_kill")
+pub fn posix_kill(os_pid: Int, signal: Int) -> Result(Nil, Error)

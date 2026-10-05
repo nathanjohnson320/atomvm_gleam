@@ -72,12 +72,6 @@ Intentionally **out of scope** for this package:
 
 PRs welcome for the gaps above.
 
-## Examples
-
-See [`atomvm_gleam_examples`](https://github.com/nathanjohnson320/atomvm_gleam_examples)
-and the Orbital badge exercises for end-to-end usage (GPIO, I²C, SPI/NeoPixel,
-Wi-Fi, AtomGL, ADC, …).
-
 ## Development
 
 ```sh

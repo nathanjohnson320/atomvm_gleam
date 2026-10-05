@@ -1,8 +1,13 @@
 name = "atomvm_gleam"
-version = "1.0.0"
+version = "0.7.0-dev"
 gleam = ">= 1.18.1"
-description = "Typed Gleam wrappers for AtomVM peripherals, network, and AtomGL"
+description = "Typed Gleam wrappers for AtomVM 0.7 peripherals, network, and AtomGL"
 licences = ["MIT"]
+
+[repository]
+type = "github"
+user = "nathanjohnson320"
+repo = "atomvm_gleam"
 
 [dependencies]
 gleam_stdlib = ">= 1.0.0 and < 2.0.0"

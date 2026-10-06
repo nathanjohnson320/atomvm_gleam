@@ -3,7 +3,7 @@
 Typed Gleam wrappers for AtomVM **0.7** (`v0.7.0-beta.0` / `release-0.7`), not 0.6.
 Package version matches that AtomVM pre-release (`0.7.0-beta.0`).
 
-Upstream layout changed in 0.7: platform APIs live under `libs/avm_esp32`, `libs/avm_rp2`, `libs/avm_network`, etc. Prefer those sources and `doc.atomvm.org/release-0.7` over old monolithic `eavmlib` docs.
+Upstream layout changed in 0.7: platform APIs live under `libs/avm_esp32`, `libs/avm_rp2`, `libs/avm_network`, `libs/avm_emscripten`, etc. Prefer those sources and `doc.atomvm.org/release-0.7` over old monolithic `eavmlib` docs. AtomVM WASM still runs BEAM — keep `@external(erlang, ...)` (not Gleam’s JS backend).
 
 ## File layout
 

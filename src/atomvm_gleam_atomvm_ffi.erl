@@ -30,7 +30,10 @@
     posix_closedir/1,
     posix_readdir/1,
     subprocess/4,
-    posix_kill/2
+    posix_kill/2,
+    posix_tcgetattr/1,
+    posix_tcsetattr/3,
+    posix_tcflush/2
 ]).
 
 add_avm_pack_file(Path, Name) ->
@@ -499,8 +502,151 @@ posix_kill(OsPid, Signal) ->
             {error, failed}
     end.
 
+posix_tcgetattr(File) ->
+    try
+        case atomvm:posix_tcgetattr(File) of
+            {ok, Info} when is_map(Info) ->
+                {ok, termios_from_map(Info)};
+            Other ->
+                wrap_ok(Other)
+        end
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
+posix_tcsetattr(File, ApplyWhen, Termios) ->
+    try
+        wrap_ok(
+            atomvm:posix_tcsetattr(
+                File, tcsetattr_when(ApplyWhen), termios_to_map(Termios)
+            )
+        )
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
+posix_tcflush(File, QueueSelector) ->
+    try
+        wrap_ok(atomvm:posix_tcflush(File, tcflush_queue(QueueSelector)))
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
 clock_id(realtime) ->
     realtime.
+
+tcsetattr_when(tcsanow) -> tcsanow;
+tcsetattr_when(tcsadrain) -> tcsadrain;
+tcsetattr_when(tcsaflush) -> tcsaflush.
+
+tcflush_queue(tciflush) -> tciflush;
+tcflush_queue(tcoflush) -> tcoflush;
+tcflush_queue(tcioflush) -> tcioflush.
+
+termios_from_map(Map) when is_map(Map) ->
+    {posix_termios, map_opt(Map, cflag), map_opt(Map, iflag), map_opt(Map, oflag),
+        map_opt(Map, lflag), map_opt(Map, ispeed), map_opt(Map, ospeed),
+        map_opt(Map, raw), map_opt(Map, data_bits), map_opt(Map, stop_bits),
+        map_parity_opt(Map), map_flow_opt(Map), map_opt(Map, clocal)}.
+
+termios_to_map(
+    {posix_termios, Cflag, Iflag, Oflag, Lflag, Ispeed, Ospeed, Raw, DataBits,
+        StopBits, Parity, FlowControl, Clocal}
+) ->
+    maps:from_list(
+        opt_kv(cflag, Cflag) ++
+            opt_kv(iflag, Iflag) ++
+            opt_kv(oflag, Oflag) ++
+            opt_kv(lflag, Lflag) ++
+            opt_kv(ispeed, Ispeed) ++
+            opt_kv(ospeed, Ospeed) ++
+            opt_kv(raw, Raw) ++
+            opt_kv(data_bits, DataBits) ++
+            opt_kv(stop_bits, StopBits) ++
+            parity_kv(Parity) ++
+            flow_kv(FlowControl) ++
+            opt_kv(clocal, Clocal)
+    ).
+
+map_opt(Map, Key) ->
+    case maps:find(Key, Map) of
+        {ok, Value} ->
+            {some, Value};
+        error ->
+            none
+    end.
+
+map_parity_opt(Map) ->
+    case maps:find(parity, Map) of
+        {ok, none} ->
+            {some, no_parity};
+        {ok, even} ->
+            {some, even};
+        {ok, odd} ->
+            {some, odd};
+        {ok, _} ->
+            none;
+        error ->
+            none
+    end.
+
+map_flow_opt(Map) ->
+    case maps:find(flow_control, Map) of
+        {ok, none} ->
+            {some, no_flow};
+        {ok, hardware} ->
+            {some, hardware};
+        {ok, software} ->
+            {some, software};
+        {ok, _} ->
+            none;
+        error ->
+            none
+    end.
+
+opt_kv(_Key, none) ->
+    [];
+opt_kv(Key, {some, Value}) ->
+    [{Key, Value}].
+
+parity_kv(none) ->
+    [];
+parity_kv({some, no_parity}) ->
+    [{parity, none}];
+parity_kv({some, even}) ->
+    [{parity, even}];
+parity_kv({some, odd}) ->
+    [{parity, odd}].
+
+flow_kv(none) ->
+    [];
+flow_kv({some, no_flow}) ->
+    [{flow_control, none}];
+flow_kv({some, hardware}) ->
+    [{flow_control, hardware}];
+flow_kv({some, software}) ->
+    [{flow_control, software}].
 
 open_flags(Flags) when is_list(Flags) ->
     [open_flag(F) || F <- Flags].

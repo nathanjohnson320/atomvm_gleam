@@ -249,9 +249,20 @@ pub fn sta_connect_to(ssid: String, psk: String) -> Result(Nil, Error)
 @external(erlang, "atomvm_gleam_network_ffi", "sta_disconnect")
 pub fn sta_disconnect() -> Result(Nil, Error)
 
-/// Start an async Wi-Fi scan (requires `scan_done` → `notify` from [`start`](#start)).
+/// Start a Wi-Fi scan with defaults from the running STA config (`network:wifi_scan/0`).
 ///
-/// Results arrive as `{scan_results, …}` on the notify pid.
+/// Uses `default_scan_results`, dwell, passive, and hidden settings from the last
+/// `start` STA config when available. With `scan_done` → `notify`, results arrive
+/// as `{scan_results, …}` on the notify pid.
+///
+/// See [wifi_scan](https://doc.atomvm.org/release-0.7/network-programming-guide.html#wifi-scan).
+@external(erlang, "atomvm_gleam_network_ffi", "wifi_scan")
+pub fn wifi_scan_default() -> Result(Nil, Error)
+
+/// Start an async Wi-Fi scan requesting up to `results` APs (`network:wifi_scan/1`).
+///
+/// Requires `scan_done` → `notify` from [`start`](#start). Results arrive as
+/// `{scan_results, …}` on the notify pid.
 ///
 /// See [wifi_scan](https://doc.atomvm.org/release-0.7/network-programming-guide.html#wifi-scan).
 @external(erlang, "atomvm_gleam_network_ffi", "wifi_scan")
@@ -269,12 +280,42 @@ pub fn sta_rssi() -> Result(Int, Error)
 @external(erlang, "atomvm_gleam_network_ffi", "sta_status")
 pub fn sta_status() -> Result(StaStatus, Error)
 
-/// Blocking convenience: start STA, wait for DHCP, return `IpInfo`.
+/// Blocking convenience: start STA with empty config and default 15_000 ms timeout
+/// (`network:wait_for_sta/0`).
 ///
 /// Useful for simple apps; badge-style UIs should prefer [`start`](#start) +
 /// event messages.
 ///
-/// See [`network:wait_for_sta/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/network.html#wait-for-sta-2).
+/// See [STA Mode Convenience Functions](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-mode-convenience-functions).
+@external(erlang, "atomvm_gleam_network_ffi", "wait_for_sta_default")
+pub fn wait_for_sta_default() -> Result(IpInfo, Error)
+
+/// Blocking convenience: start STA with empty config and `timeout_ms`
+/// (`network:wait_for_sta/1` timeout clause).
+///
+/// See [STA Mode Convenience Functions](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-mode-convenience-functions).
+@external(erlang, "atomvm_gleam_network_ffi", "wait_for_sta_timeout")
+pub fn wait_for_sta_timeout(timeout_ms: Int) -> Result(IpInfo, Error)
+
+/// Blocking convenience: start STA with optional credentials and default 15_000 ms
+/// timeout (`network:wait_for_sta/1` config clause).
+///
+/// Omit `ssid` / `psk` (`None`) for an empty STA property list (NVS / last config).
+///
+/// See [STA Mode Convenience Functions](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-mode-convenience-functions).
+@external(erlang, "atomvm_gleam_network_ffi", "wait_for_sta_config")
+pub fn wait_for_sta_config(
+  ssid: Option(String),
+  psk: Option(String),
+) -> Result(IpInfo, Error)
+
+/// Blocking convenience: start STA with `ssid`/`psk` and wait for DHCP
+/// (`network:wait_for_sta/2`).
+///
+/// Useful for simple apps; badge-style UIs should prefer [`start`](#start) +
+/// event messages.
+///
+/// See [STA Mode Convenience Functions](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-mode-convenience-functions).
 @external(erlang, "atomvm_gleam_network_ffi", "wait_for_sta")
 pub fn wait_for_sta(
   ssid: String,
@@ -294,15 +335,17 @@ pub fn wait_for_ap(
   timeout_ms: Int,
 ) -> Result(Nil, Error)
 
-/// Equivalent to `wait_for_ap(None, None, timeout_ms)` (`network:wait_for_ap/1`).
+/// Equivalent to `wait_for_ap(None, None, timeout_ms)` (`network:wait_for_ap/1`
+/// timeout clause).
 pub fn wait_for_ap_timeout(timeout_ms: Int) -> Result(Nil, Error) {
   wait_for_ap(option.None, option.None, timeout_ms)
 }
 
-/// Equivalent to `wait_for_ap(None, None, 15_000)` (`network:wait_for_ap/0`).
-pub fn wait_for_ap_default() -> Result(Nil, Error) {
-  wait_for_ap_timeout(15_000)
-}
+/// Start AP with empty config and default 15_000 ms timeout (`network:wait_for_ap/0`).
+///
+/// See [AP Mode Convenience Functions](https://doc.atomvm.org/release-0.7/network-programming-guide.html#ap-mode-convenience-functions).
+@external(erlang, "atomvm_gleam_network_ffi", "wait_for_ap_default")
+pub fn wait_for_ap_default() -> Result(Nil, Error)
 
 /// Stop the network interface.
 @external(erlang, "atomvm_gleam_network_ffi", "stop")

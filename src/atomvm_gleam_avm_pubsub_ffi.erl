@@ -1,27 +1,9 @@
--module(atomvm_gleam_mdns_ffi).
--export([
-    start_link/6,
-    stop/1,
-    parse_dns_message/1,
-    serialize_dns_message/1,
-    parse_dns_name/2,
-    serialize_dns_name/1
-]).
+-module(atomvm_gleam_avm_pubsub_ffi).
+-export([start/0, start_named/1, publish/3, sub/2, sub_pid/3, unsub/2, unsub_pid/3]).
 
-start_link(Hostname, A, B, C, D, Ttl) ->
-    Config0 = #{
-        hostname => Hostname,
-        interface => {A, B, C, D}
-    },
-    Config =
-        case Ttl of
-            none ->
-                Config0;
-            {some, Value} ->
-                Config0#{ttl => Value}
-        end,
+start() ->
     try
-        case mdns:start_link(Config) of
+        case avm_pubsub:start() of
             {ok, Pid} ->
                 {ok, Pid};
             {error, Reason} ->
@@ -38,27 +20,11 @@ start_link(Hostname, A, B, C, D, Ttl) ->
             {error, failed}
     end.
 
-stop(Server) ->
+start_named(Name) ->
     try
-        wrap_ok(mdns:stop(Server))
-    catch
-        error:badarg ->
-            {error, badarg};
-        error:Thrown when is_atom(Thrown) ->
-            wrap_reason(Thrown);
-        _:_ ->
-            {error, failed}
-    end.
-
-%% Protocol helpers (unit-test exports on upstream mdns). Gleam DnsMessage /
-%% DnsQuestion / DnsRrecord constructors match #dns_* record tags and field
-%% order, so values pass through without reshaping.
-
-parse_dns_message(Message) ->
-    try
-        case mdns:parse_dns_message(Message) of
-            {ok, DnsMessage} ->
-                {ok, DnsMessage};
+        case avm_pubsub:start(name_atom(Name)) of
+            {ok, Pid} ->
+                {ok, Pid};
             {error, Reason} ->
                 wrap_reason(Reason);
             error ->
@@ -73,23 +39,11 @@ parse_dns_message(Message) ->
             {error, failed}
     end.
 
-serialize_dns_message(DnsMessage) ->
+publish(PubSub, Topic, Term) ->
     try
-        {ok, mdns:serialize_dns_message(DnsMessage)}
-    catch
-        error:badarg ->
-            {error, badarg};
-        error:Thrown when is_atom(Thrown) ->
-            wrap_reason(Thrown);
-        _:_ ->
-            {error, failed}
-    end.
-
-parse_dns_name(Message, Data) ->
-    try
-        case mdns:parse_dns_name(Message, Data) of
-            {ok, {Name, Tail}} ->
-                {ok, {Name, Tail}};
+        case avm_pubsub:pub(PubSub, Topic, Term) of
+            {ok, Count} ->
+                {ok, Count};
             {error, Reason} ->
                 wrap_reason(Reason);
             error ->
@@ -104,9 +58,9 @@ parse_dns_name(Message, Data) ->
             {error, failed}
     end.
 
-serialize_dns_name(Name) ->
+sub(PubSub, Topic) ->
     try
-        {ok, mdns:serialize_dns_name(Name)}
+        wrap_ok(avm_pubsub:sub(PubSub, Topic))
     catch
         error:badarg ->
             {error, badarg};
@@ -115,6 +69,47 @@ serialize_dns_name(Name) ->
         _:_ ->
             {error, failed}
     end.
+
+sub_pid(PubSub, Topic, Pid) ->
+    try
+        wrap_ok(avm_pubsub:sub(PubSub, Topic, Pid))
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+unsub(PubSub, Topic) ->
+    try
+        wrap_ok(avm_pubsub:unsub(PubSub, Topic))
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+unsub_pid(PubSub, Topic, Pid) ->
+    try
+        wrap_ok(avm_pubsub:unsub(PubSub, Topic, Pid))
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+name_atom(Name) when is_binary(Name) ->
+    binary_to_atom(Name, utf8);
+name_atom(Name) when is_atom(Name) ->
+    Name.
 
 wrap_ok(ok) ->
     {ok, nil};

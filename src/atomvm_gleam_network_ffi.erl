@@ -4,8 +4,13 @@
     sta_connect/0,
     sta_connect_to/2,
     sta_disconnect/0,
+    wifi_scan/0,
     wifi_scan/1,
+    wait_for_sta_default/0,
+    wait_for_sta_timeout/1,
+    wait_for_sta_config/2,
     wait_for_sta/3,
+    wait_for_ap_default/0,
     wait_for_ap/3,
     sta_rssi/0,
     sta_status/0,
@@ -66,19 +71,28 @@ sta_connect_to(Ssid, Psk) ->
 sta_disconnect() ->
     wrap_ok(network:sta_disconnect()).
 
+wifi_scan() ->
+    wrap_ok(network:wifi_scan()).
+
 wifi_scan(Results) ->
     wrap_ok(network:wifi_scan([{results, Results}])).
 
+wait_for_sta_default() ->
+    wrap_wait_for_sta(network:wait_for_sta()).
+
+wait_for_sta_timeout(TimeoutMs) ->
+    wrap_wait_for_sta(network:wait_for_sta(TimeoutMs)).
+
+wait_for_sta_config(Ssid, Psk) ->
+    Config = opt(ssid, Ssid) ++ opt(psk, Psk),
+    wrap_wait_for_sta(network:wait_for_sta(Config)).
+
 wait_for_sta(Ssid, Psk, TimeoutMs) ->
     Config = [{ssid, Ssid}, {psk, Psk}],
-    case network:wait_for_sta(Config, TimeoutMs) of
-        {ok, {Address, Netmask, Gateway}} ->
-            {ok, {ip_info, ipv4(Address), ipv4(Netmask), ipv4(Gateway)}};
-        {error, Reason} ->
-            wrap_reason(Reason);
-        error ->
-            {error, failed}
-    end.
+    wrap_wait_for_sta(network:wait_for_sta(Config, TimeoutMs)).
+
+wait_for_ap_default() ->
+    wrap_ok(network:wait_for_ap()).
 
 wait_for_ap(Ssid, Psk, TimeoutMs) ->
     Config = opt(ssid, Ssid) ++ opt(psk, Psk),
@@ -199,6 +213,13 @@ opt(Key, {some, Value}) ->
 
 ipv4({A, B, C, D}) ->
     {ipv4_address, A, B, C, D}.
+
+wrap_wait_for_sta({ok, {Address, Netmask, Gateway}}) ->
+    {ok, {ip_info, ipv4(Address), ipv4(Netmask), ipv4(Gateway)}};
+wrap_wait_for_sta({error, Reason}) ->
+    wrap_reason(Reason);
+wrap_wait_for_sta(error) ->
+    {error, failed}.
 
 wrap_ok(ok) ->
     {ok, nil};

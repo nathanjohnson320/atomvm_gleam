@@ -9,10 +9,10 @@
 /// `crypto:strong_rand_bytes/1`. Prefer a crypto wrapper when available; this
 /// module does not wrap the deprecated API.
 ///
-/// POSIX file, directory, and subprocess APIs below are **platform-dependent**.
-/// They are typically available on `generic_unix` and some MCU builds that
-/// expose the corresponding NIFs; other platforms return `NotSupported` or
-/// raise at runtime.
+/// POSIX file, directory, subprocess, and termios APIs below are
+/// **platform-dependent**. They are typically available on `generic_unix` and
+/// MCU / UART builds that expose the corresponding NIFs; other platforms
+/// return `NotSupported` or raise at runtime.
 import gleam/erlang/process.{type Pid}
 import gleam/erlang/reference.{type Reference}
 import gleam/option.{type Option}
@@ -394,3 +394,122 @@ pub fn subprocess(
 /// See [`atomvm:posix_kill/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-kill-2).
 @external(erlang, "atomvm_gleam_atomvm_ffi", "posix_kill")
 pub fn posix_kill(os_pid: Int, signal: Int) -> Result(Nil, Error)
+
+/// When [`posix_tcsetattr`](#posix_tcsetattr) applies changes.
+///
+/// See [`atomvm:posix_tcsetattr/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-tcsetattr-3).
+pub type TcsetattrWhen {
+  Tcsanow
+  Tcsadrain
+  Tcsaflush
+}
+
+/// Queue selector for [`posix_tcflush`](#posix_tcflush).
+///
+/// See [`atomvm:posix_tcflush/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-tcflush-2).
+pub type TcflushQueue {
+  Tciflush
+  Tcoflush
+  Tcioflush
+}
+
+/// Serial parity for [`PosixTermios`](#PosixTermios) setattr options.
+pub type TermiosParity {
+  NoParity
+  Even
+  Odd
+}
+
+/// Serial flow control for [`PosixTermios`](#PosixTermios) setattr options.
+pub type TermiosFlowControl {
+  NoFlow
+  Hardware
+  Software
+}
+
+/// Terminal attributes (`atomvm:posix_termios()`).
+///
+/// [`posix_tcgetattr`](#posix_tcgetattr) fills the integer flag and speed
+/// fields. For [`posix_tcsetattr`](#posix_tcsetattr), only `Some` keys are
+/// applied (partial maps). Serial line options (`data_bits`, `stop_bits`,
+/// `parity`, `flow_control`, `clocal`, `raw`) are setattr helpers.
+///
+/// Platform-dependent: typically `generic_unix` / UART POSIX builds.
+///
+/// See [posix_termios()](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#type-posix_termios).
+pub type PosixTermios {
+  PosixTermios(
+    cflag: Option(Int),
+    iflag: Option(Int),
+    oflag: Option(Int),
+    lflag: Option(Int),
+    ispeed: Option(Int),
+    ospeed: Option(Int),
+    raw: Option(Bool),
+    data_bits: Option(Int),
+    stop_bits: Option(Int),
+    parity: Option(TermiosParity),
+    flow_control: Option(TermiosFlowControl),
+    clocal: Option(Bool),
+  )
+}
+
+/// Empty termios map (no keys applied by setattr).
+pub fn empty_termios() -> PosixTermios {
+  PosixTermios(
+    cflag: option.None,
+    iflag: option.None,
+    oflag: option.None,
+    lflag: option.None,
+    ispeed: option.None,
+    ospeed: option.None,
+    raw: option.None,
+    data_bits: option.None,
+    stop_bits: option.None,
+    parity: option.None,
+    flow_control: option.None,
+    clocal: option.None,
+  )
+}
+
+/// Get terminal parameters (`tcgetattr(3)`).
+///
+/// Platform-dependent: typically `generic_unix` / UART POSIX builds.
+///
+/// See [`atomvm:posix_tcgetattr/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-tcgetattr-1).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_tcgetattr")
+pub fn posix_tcgetattr(file: PosixFd) -> Result(PosixTermios, Error)
+
+/// Set terminal parameters (`tcsetattr(3)`).
+///
+/// Only keys present as `Some` in `termios` are applied. Use
+/// [`empty_termios`](#empty_termios) and set the fields you need.
+///
+/// Platform-dependent: typically `generic_unix` / UART POSIX builds.
+///
+/// See [`atomvm:posix_tcsetattr/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-tcsetattr-3).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_tcsetattr")
+pub fn posix_tcsetattr(
+  file: PosixFd,
+  apply_when: TcsetattrWhen,
+  termios: PosixTermios,
+) -> Result(Nil, Error)
+
+/// Discard terminal data (`tcflush(3)`).
+///
+/// Platform-dependent: typically `generic_unix` / UART POSIX builds.
+///
+/// See [`atomvm:posix_tcflush/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html#posix-tcflush-2).
+@external(erlang, "atomvm_gleam_atomvm_ffi", "posix_tcflush")
+pub fn posix_tcflush(
+  file: PosixFd,
+  queue_selector: TcflushQueue,
+) -> Result(Nil, Error)
+
+/// Return the node creation value used in references and pids.
+///
+/// Exported on AtomVM 0.7 (`get_creation/0`); marked hidden in upstream edoc.
+///
+/// See [`atomvm:get_creation/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/atomvm.erl).
+@external(erlang, "atomvm", "get_creation")
+pub fn get_creation() -> Int

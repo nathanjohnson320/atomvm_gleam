@@ -3,6 +3,7 @@
     nvs_get_binary/2,
     nvs_fetch_binary/2,
     nvs_put_binary/3,
+    nvs_set_binary/3,
     nvs_erase_key/2,
     nvs_erase_all/1,
     nvs_reformat/0,
@@ -11,12 +12,14 @@
     reset_reason/0,
     restart/0,
     freq_hz/0,
+    timer_get_time/0,
     sleep_enable_gpio_wakeup/0,
     light_sleep/0,
     deep_sleep/0,
     deep_sleep_ms/1,
     sleep_get_wakeup_cause/0,
     sleep_enable_ext0_wakeup/2,
+    sleep_enable_ext1_wakeup/2,
     sleep_enable_ext1_wakeup_io/2,
     sleep_disable_ext1_wakeup_io/1,
     deep_sleep_enable_gpio_wakeup/2,
@@ -24,6 +27,7 @@
     sleep_enable_timer_wakeup/1,
     partition_list/0,
     partition_read/3,
+    partition_mmap/3,
     partition_write/3,
     partition_erase_range/2,
     partition_erase_range_size/3,
@@ -76,6 +80,19 @@ nvs_fetch_binary(Namespace, Key) ->
 nvs_put_binary(Namespace, Key, Value) ->
     try
         ok = esp:nvs_put_binary(name_atom(Namespace), name_atom(Key), Value),
+        {ok, nil}
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
+nvs_set_binary(Namespace, Key, Value) ->
+    try
+        ok = esp:nvs_set_binary(name_atom(Namespace), name_atom(Key), Value),
         {ok, nil}
     catch
         error:badarg ->
@@ -204,6 +221,18 @@ freq_hz() ->
             {error, failed}
     end.
 
+timer_get_time() ->
+    try
+        {ok, esp:timer_get_time()}
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
 sleep_enable_gpio_wakeup() ->
     wrap_ok_or_error(esp:sleep_enable_gpio_wakeup()).
 
@@ -232,6 +261,9 @@ sleep_get_wakeup_cause() ->
 
 sleep_enable_ext0_wakeup(Pin, Level) ->
     wrap_ok_or_error(esp:sleep_enable_ext0_wakeup(Pin, Level)).
+
+sleep_enable_ext1_wakeup(Mask, Mode) ->
+    wrap_ok_or_error(esp:sleep_enable_ext1_wakeup(Mask, Mode)).
 
 sleep_enable_ext1_wakeup_io(Mask, Mode) ->
     wrap_ok_or_error(esp:sleep_enable_ext1_wakeup_io(Mask, Mode)).
@@ -262,6 +294,16 @@ partition_list() ->
 
 partition_read(Id, Offset, Size) ->
     case esp:partition_read(Id, Offset, Size) of
+        {ok, Data} ->
+            {ok, Data};
+        error ->
+            {error, failed};
+        {error, Reason} ->
+            wrap_reason(Reason)
+    end.
+
+partition_mmap(Id, Offset, Size) ->
+    case esp:partition_mmap(Id, Offset, Size) of
         {ok, Data} ->
             {ok, Data};
         error ->

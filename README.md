@@ -1,9 +1,9 @@
 # atomvm_gleam
 
-Typed Gleam wrappers for [AtomVM](https://github.com/atomvm/AtomVM)
-**[`v0.7.0-beta.0`](https://github.com/atomvm/AtomVM/releases/tag/v0.7.0-beta.0)** —
-peripherals, networking, crypto, and [AtomGL](https://github.com/atomvm/atomgl)
-display.
+Typed Gleam wrappers for [AtomVM](https://github.com/atomvm/AtomVM) **0.7**
+(`release-0.7` / `v0.7.0-beta.x`) — peripherals, networking, crypto,
+[AtomGL](https://github.com/atomvm/atomgl) display, and AtomVM WASM /
+emscripten browser APIs.
 
 Package version tracks the matching AtomVM pre-release (`0.7.0-beta.0`). APIs
 may still shift until AtomVM ships a stable 0.7.0.
@@ -25,9 +25,9 @@ Hardware examples live in
 
 ## Supported modules
 
-Coverage is against AtomVM `v0.7.0-beta.0` / `release-0.7` libs (`avm_esp32`,
-`avm_rp2`, `avm_network`, `eavmlib`, `estdlib`), plus AtomGL and
-[`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client).
+Coverage below is against AtomVM `release-0.7` libs (`avm_esp32`, `avm_rp2`,
+`avm_network`, `avm_emscripten`, `eavmlib`, `estdlib`), plus AtomGL / websocket
+extras used by the badge examples.
 
 | Gleam module | Upstream | Status |
 | --- | --- | --- |
@@ -51,9 +51,43 @@ Coverage is against AtomVM `v0.7.0-beta.0` / `release-0.7` libs (`avm_esp32`,
 | `atomvm_gleam/crypto` | `crypto` | Hash, MAC, AEAD, PBKDF2, ECDH/EdDH, sign/verify, `strong_rand_bytes` |
 | `atomvm_gleam/json` | `json` | `encode/1` and `decode/1` |
 | `atomvm_gleam/display` | [AtomGL](https://github.com/atomvm/atomgl) `display` port | `open` / `update` / font register/deregister |
-| `atomvm_gleam/websocket` | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) | `open` / send text\|binary / `close` |
+| `atomvm_gleam/websocket` | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) | ESP-IDF port: `open` / send text\|binary / `close` |
+| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop (`run_script`, tracked objects, promises) + HTML5 event callbacks |
+| `atomvm_gleam/emscripten_websocket` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html) `websocket` | Browser WebSocket NIF (full public API) |
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.
+
+### Two WebSocket modules
+
+| Gleam module | Platform | Upstream |
+| --- | --- | --- |
+| `atomvm_gleam/websocket` | ESP-IDF (and images that include the port driver) | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) |
+| `atomvm_gleam/emscripten_websocket` | Emscripten / browser only | AtomVM `avm_emscripten` Erlang module `websocket` |
+
+They are not interchangeable: different message shapes, APIs, and platforms.
+Check `atomvm.platform()` (or `emscripten_websocket.is_supported()`) before calling
+the browser NIF on mixed-target builds.
+
+## AtomVM WASM / emscripten
+
+AtomVM can run as WebAssembly in the browser or under Node. Gleam code for that
+target is still compiled for the **Erlang BEAM** and loaded by AtomVM WASM —
+use `@external(erlang, ...)` FFI as elsewhere in this package. Gleam’s JavaScript
+backend is a different toolchain and is not used here.
+
+Upstream docs (prefer `release-0.7`):
+
+- [Getting Started — WebAssembly](https://doc.atomvm.org/release-0.7/getting-started-guide.html#getting-started-with-atomvm-webassembly)
+- [Build instructions — emscripten](https://doc.atomvm.org/release-0.7/build-instructions.html#building-for-emscripten)
+- API: [`emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html),
+  [`websocket`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html)
+  (under `avm_emscripten`)
+
+Browser hosting note (high level): AtomVM’s web build uses `SharedArrayBuffer`,
+so pages must be served from localhost or HTTPS with COOP/COEP headers
+(`Cross-Origin-Opener-Policy: same-origin` and
+`Cross-Origin-Embedder-Policy: require-corp`). See the AtomVM getting-started
+guide for hosting options; this package does not document a full deploy tutorial.
 
 ## Known gaps vs AtomVM 0.7
 
@@ -67,12 +101,7 @@ Still useful upstream APIs that are **not** wrapped (or only partially):
 | `json` | OTP-style `encode/2`, `decode/3`, `decode_start` / `decode_continue`, and the fine-grained encode helpers |
 | `mdns` | DNS parse/serialize helpers (`parse_dns_message`, etc.) |
 | `console` | Port-handle overloads (`puts/2`, `flush/1`) |
-| `emscripten` | Browser/JS interop (`run_script`, HTML5 events, promises, tracked values) |
-| `websocket` (emscripten) | Browser WebSocket NIFs in `avm_emscripten` (distinct from `atomvm_websocket_client`) |
-
-The Emscripten/WASM platform itself is supported: `atomvm.platform()` returns
-`Emscripten`, and the shared modules above work wherever the underlying NIFs
-exist. Dedicated Gleam wrappers for `avm_emscripten` are not shipped yet.
+| `emscripten` | `register_*_callback/3` user-data arity |
 
 Intentionally **out of scope** for this package:
 

@@ -140,6 +140,13 @@ pub fn nvs_get_binary(
   key: String,
 ) -> Result(Option(BitArray), Error)
 
+/// Read a binary from the default `atomvm` NVS namespace (`esp:nvs_get_binary/1`).
+///
+/// See [`esp:nvs_get_binary/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-get-binary-1).
+pub fn nvs_get_binary_default(key: String) -> Result(Option(BitArray), Error) {
+  nvs_get_binary("atomvm", key)
+}
+
 /// Fetch a binary from NVS (`{ok, Value}` / `{error, not_found}`).
 ///
 /// See [`esp:nvs_fetch_binary/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-fetch-binary-2).
@@ -159,17 +166,51 @@ pub fn nvs_put_binary(
   value: BitArray,
 ) -> Result(Nil, Error)
 
+/// Deprecated alias of [`nvs_put_binary`](#nvs_put_binary) (`esp:nvs_set_binary/3`).
+///
+/// See [`esp:nvs_set_binary/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-set-binary-3).
+@external(erlang, "atomvm_gleam_esp_ffi", "nvs_set_binary")
+pub fn nvs_set_binary(
+  namespace: String,
+  key: String,
+  value: BitArray,
+) -> Result(Nil, Error)
+
+/// Write a binary to the default `atomvm` NVS namespace (`esp:nvs_set_binary/2`).
+///
+/// See [`esp:nvs_set_binary/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-set-binary-2).
+pub fn nvs_set_binary_default(
+  key: String,
+  value: BitArray,
+) -> Result(Nil, Error) {
+  nvs_set_binary("atomvm", key, value)
+}
+
 /// Erase a key from NVS.
 ///
 /// See [`esp:nvs_erase_key/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-erase-key-2).
 @external(erlang, "atomvm_gleam_esp_ffi", "nvs_erase_key")
 pub fn nvs_erase_key(namespace: String, key: String) -> Result(Nil, Error)
 
+/// Erase a key from the default `atomvm` NVS namespace (`esp:nvs_erase_key/1`).
+///
+/// See [`esp:nvs_erase_key/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-erase-key-1).
+pub fn nvs_erase_key_default(key: String) -> Result(Nil, Error) {
+  nvs_erase_key("atomvm", key)
+}
+
 /// Erase all keys in an NVS namespace.
 ///
 /// See [`esp:nvs_erase_all/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-erase-all-1).
 @external(erlang, "atomvm_gleam_esp_ffi", "nvs_erase_all")
 pub fn nvs_erase_all(namespace: String) -> Result(Nil, Error)
+
+/// Erase all keys in the default `atomvm` NVS namespace (`esp:nvs_erase_all/0`).
+///
+/// See [`esp:nvs_erase_all/0`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#nvs-erase-all-0).
+pub fn nvs_erase_all_default() -> Result(Nil, Error) {
+  nvs_erase_all("atomvm")
+}
 
 /// Reformat the entire NVS partition. Deletes all NVS data.
 ///
@@ -207,6 +248,12 @@ pub fn restart() -> Nil
 @external(erlang, "atomvm_gleam_esp_ffi", "freq_hz")
 pub fn freq_hz() -> Result(Int, Error)
 
+/// Microseconds since boot or wakeup from deep sleep.
+///
+/// See [`esp:timer_get_time/0`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#timer-get-time-0).
+@external(erlang, "atomvm_gleam_esp_ffi", "timer_get_time")
+pub fn timer_get_time() -> Result(Int, Error)
+
 /// Enable GPIO wake from light sleep (after `gpio:wakeup_enable/2`).
 ///
 /// See [`esp:sleep_enable_gpio_wakeup/0`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#sleep-enable-gpio-wakeup-0).
@@ -242,6 +289,14 @@ pub fn sleep_get_wakeup_cause() -> Result(Option(WakeupCause), Error)
 /// See [`esp:sleep_enable_ext0_wakeup/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#sleep-enable-ext0-wakeup-2).
 @external(erlang, "atomvm_gleam_esp_ffi", "sleep_enable_ext0_wakeup")
 pub fn sleep_enable_ext0_wakeup(pin: Int, level: Int) -> Result(Nil, Error)
+
+/// Enable ext1 deep-sleep wakeup (`mask` bitset, `mode` 0..3).
+///
+/// Prefer [`sleep_enable_ext1_wakeup_io`](#sleep_enable_ext1_wakeup_io) on newer ESP-IDF.
+///
+/// See [`esp:sleep_enable_ext1_wakeup/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#sleep-enable-ext1-wakeup-2).
+@external(erlang, "atomvm_gleam_esp_ffi", "sleep_enable_ext1_wakeup")
+pub fn sleep_enable_ext1_wakeup(mask: Int, mode: Int) -> Result(Nil, Error)
 
 /// Enable ext1 deep-sleep wakeup IOs (`mask` bitset, `mode` 0..3).
 ///
@@ -284,6 +339,18 @@ pub fn partition_list() -> Result(List(Partition), Error)
 /// See [`esp:partition_read/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#partition-read-3).
 @external(erlang, "atomvm_gleam_esp_ffi", "partition_read")
 pub fn partition_read(
+  id: BitArray,
+  offset: Int,
+  size: Int,
+) -> Result(BitArray, Error)
+
+/// Memory-map `size` bytes of partition `id` at `offset` into RAM.
+///
+/// The mapping is released when all references are garbage collected.
+///
+/// See [`esp:partition_mmap/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/esp.html#partition-mmap-3).
+@external(erlang, "atomvm_gleam_esp_ffi", "partition_mmap")
+pub fn partition_mmap(
   id: BitArray,
   offset: Int,
   size: Int,

@@ -1,5 +1,12 @@
 -module(atomvm_gleam_mdns_ffi).
--export([start_link/6, stop/1]).
+-export([
+    start_link/6,
+    stop/1,
+    parse_dns_message/1,
+    serialize_dns_message/1,
+    parse_dns_name/2,
+    serialize_dns_name/1
+]).
 
 start_link(Hostname, A, B, C, D, Ttl) ->
     Config0 = #{
@@ -34,6 +41,72 @@ start_link(Hostname, A, B, C, D, Ttl) ->
 stop(Server) ->
     try
         wrap_ok(mdns:stop(Server))
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+%% Protocol helpers (unit-test exports on upstream mdns). Gleam DnsMessage /
+%% DnsQuestion / DnsRrecord constructors match #dns_* record tags and field
+%% order, so values pass through without reshaping.
+
+parse_dns_message(Message) ->
+    try
+        case mdns:parse_dns_message(Message) of
+            {ok, DnsMessage} ->
+                {ok, DnsMessage};
+            {error, Reason} ->
+                wrap_reason(Reason);
+            error ->
+                {error, failed}
+        end
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+serialize_dns_message(DnsMessage) ->
+    try
+        {ok, mdns:serialize_dns_message(DnsMessage)}
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+parse_dns_name(Message, Data) ->
+    try
+        case mdns:parse_dns_name(Message, Data) of
+            {ok, {Name, Tail}} ->
+                {ok, {Name, Tail}};
+            {error, Reason} ->
+                wrap_reason(Reason);
+            error ->
+                {error, failed}
+        end
+    catch
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
+
+serialize_dns_name(Name) ->
+    try
+        {ok, mdns:serialize_dns_name(Name)}
     catch
         error:badarg ->
             {error, badarg};

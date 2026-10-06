@@ -20,9 +20,6 @@ may still shift until AtomVM ships a stable 0.7.0.
 atomvm_gleam = ">= 0.7.0-beta.0 and < 0.8.0"
 ```
 
-Hardware examples live in
-[`atomvm_gleam_examples`](https://github.com/nathanjohnson320/atomvm_gleam_examples).
-
 ## Supported modules
 
 Coverage against AtomVM `v0.7.0-beta.0` / `release-0.7` libs (`avm_esp32`,

@@ -15,14 +15,27 @@
 ////
 //// ## HTML5 event callbacks
 ////
-//// Register with [`register_*_with`](#register_click_with) (target + options)
-//// or the no-options [`register_*`](#register_click) form. Unregister with
-//// [`unregister_*`](#unregister_click) using a [`ListenerHandle`](#ListenerHandle)
-//// (preferred) or [`Html5Target`](#Html5Target).
+//// Register with [`register_*_with`](#register_click_with) (target + options),
+//// the no-options [`register_*`](#register_click) form, or
+//// [`register_*_with_user_data`](#register_click_with_user_data) for the
+//// upstream `/3` arity. Unregister with [`unregister_*`](#unregister_click)
+//// using a [`ListenerHandle`](#ListenerHandle) (preferred) or
+//// [`Html5Target`](#Html5Target).
 ////
-//// Events arrive as `{emscripten, {EventName, EventMap}}`. If the registering
-//// process dies, that callback and any other callback for the same event on
-//// the same target are unregistered (upstream behaviour).
+//// ### Inbound message shape
+////
+//// Without user data:
+//// `{emscripten, {EventName, EventMap}}`.
+////
+//// With user data (`register_*_with_user_data`):
+//// `{emscripten, {EventName, EventMap}, UserData}` — an outer 3-tuple; the
+//// third element is the term you passed at register time (copied into the
+//// listener handle). User data is any Erlang term: Gleam `Int`, `String`,
+//// tuples, lists, atoms via FFI, etc. Keep it small — the handle retains a
+//// copy for the listener lifetime.
+////
+//// If the registering process dies, that callback and any other callback for
+//// the same event on the same target are unregistered (upstream behaviour).
 ////
 //// ### HTML5 exports
 ////
@@ -31,8 +44,6 @@
 //// mouseleave, mouseover, mouseout.
 //// Other: wheel, resize, scroll, blur, focus, focusin, focusout, touchstart,
 //// touchend, touchmove, touchcancel.
-////
-//// Upstream `register_*_callback/3` (user-data) is not wrapped.
 ////
 //// Upstream:
 //// [`libs/avm_emscripten/src/emscripten.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/emscripten.erl)
@@ -312,6 +323,21 @@ pub fn register_keypress_with(
   register_keypress_ffi(target, options)
 }
 
+/// Register keypress with options and user data.
+///
+/// Events: `{emscripten, {keypress, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {keypress, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_keypress_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_keypress_callback-3).
+pub fn register_keypress_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_keypress_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister keypress listeners (by handle or target).
 ///
 /// See [`emscripten:unregister_keypress_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_keypress_callback-1).
@@ -336,6 +362,21 @@ pub fn register_keydown_with(
   register_keydown_ffi(target, options)
 }
 
+/// Register keydown with options and user data.
+///
+/// Events: `{emscripten, {keydown, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {keydown, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_keydown_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_keydown_callback-3).
+pub fn register_keydown_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_keydown_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister keydown listeners.
 ///
 /// See [`emscripten:unregister_keydown_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_keydown_callback-1).
@@ -358,6 +399,21 @@ pub fn register_keyup_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_keyup_ffi(target, options)
+}
+
+/// Register keyup with options and user data.
+///
+/// Events: `{emscripten, {keyup, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {keyup, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_keyup_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_keyup_callback-3).
+pub fn register_keyup_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_keyup_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister keyup listeners.
@@ -388,6 +444,21 @@ pub fn register_click_with(
   register_click_ffi(target, options)
 }
 
+/// Register click with options and user data.
+///
+/// Events: `{emscripten, {click, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {click, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_click_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_click_callback-3).
+pub fn register_click_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_click_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister click listeners.
 ///
 /// See [`emscripten:unregister_click_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_click_callback-1).
@@ -410,6 +481,21 @@ pub fn register_dblclick_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_dblclick_ffi(target, options)
+}
+
+/// Register dblclick with options and user data.
+///
+/// Events: `{emscripten, {dblclick, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {dblclick, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_dblclick_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_dblclick_callback-3).
+pub fn register_dblclick_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_dblclick_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister dblclick listeners.
@@ -436,6 +522,21 @@ pub fn register_mousedown_with(
   register_mousedown_ffi(target, options)
 }
 
+/// Register mousedown with options and user data.
+///
+/// Events: `{emscripten, {mousedown, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mousedown, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mousedown_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mousedown_callback-3).
+pub fn register_mousedown_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mousedown_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister mousedown listeners.
 ///
 /// See [`emscripten:unregister_mousedown_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_mousedown_callback-1).
@@ -458,6 +559,21 @@ pub fn register_mouseup_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_mouseup_ffi(target, options)
+}
+
+/// Register mouseup with options and user data.
+///
+/// Events: `{emscripten, {mouseup, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mouseup, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mouseup_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mouseup_callback-3).
+pub fn register_mouseup_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mouseup_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister mouseup listeners.
@@ -484,6 +600,21 @@ pub fn register_mousemove_with(
   register_mousemove_ffi(target, options)
 }
 
+/// Register mousemove with options and user data.
+///
+/// Events: `{emscripten, {mousemove, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mousemove, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mousemove_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mousemove_callback-3).
+pub fn register_mousemove_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mousemove_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister mousemove listeners.
 ///
 /// See [`emscripten:unregister_mousemove_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_mousemove_callback-1).
@@ -506,6 +637,21 @@ pub fn register_mouseenter_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_mouseenter_ffi(target, options)
+}
+
+/// Register mouseenter with options and user data.
+///
+/// Events: `{emscripten, {mouseenter, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mouseenter, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mouseenter_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mouseenter_callback-3).
+pub fn register_mouseenter_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mouseenter_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister mouseenter listeners.
@@ -532,6 +678,21 @@ pub fn register_mouseleave_with(
   register_mouseleave_ffi(target, options)
 }
 
+/// Register mouseleave with options and user data.
+///
+/// Events: `{emscripten, {mouseleave, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mouseleave, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mouseleave_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mouseleave_callback-3).
+pub fn register_mouseleave_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mouseleave_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister mouseleave listeners.
 ///
 /// See [`emscripten:unregister_mouseleave_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_mouseleave_callback-1).
@@ -556,6 +717,21 @@ pub fn register_mouseover_with(
   register_mouseover_ffi(target, options)
 }
 
+/// Register mouseover with options and user data.
+///
+/// Events: `{emscripten, {mouseover, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mouseover, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mouseover_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mouseover_callback-3).
+pub fn register_mouseover_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mouseover_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister mouseover listeners.
 ///
 /// See [`emscripten:unregister_mouseover_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_mouseover_callback-1).
@@ -578,6 +754,21 @@ pub fn register_mouseout_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_mouseout_ffi(target, options)
+}
+
+/// Register mouseout with options and user data.
+///
+/// Events: `{emscripten, {mouseout, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {mouseout, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_mouseout_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_mouseout_callback-3).
+pub fn register_mouseout_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_mouseout_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister mouseout listeners.
@@ -608,6 +799,21 @@ pub fn register_wheel_with(
   register_wheel_ffi(target, options)
 }
 
+/// Register wheel with options and user data.
+///
+/// Events: `{emscripten, {wheel, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {wheel, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_wheel_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_wheel_callback-3).
+pub fn register_wheel_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_wheel_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister wheel listeners.
 ///
 /// See [`emscripten:unregister_wheel_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_wheel_callback-1).
@@ -632,6 +838,21 @@ pub fn register_resize_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_resize_ffi(target, options)
+}
+
+/// Register resize with options and user data.
+///
+/// Events: `{emscripten, {resize, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {resize, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_resize_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_resize_callback-3).
+pub fn register_resize_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_resize_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister resize listeners.
@@ -660,6 +881,21 @@ pub fn register_scroll_with(
   register_scroll_ffi(target, options)
 }
 
+/// Register scroll with options and user data.
+///
+/// Events: `{emscripten, {scroll, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {scroll, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_scroll_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_scroll_callback-3).
+pub fn register_scroll_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_scroll_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister scroll listeners.
 ///
 /// See [`emscripten:unregister_scroll_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_scroll_callback-1).
@@ -686,6 +922,21 @@ pub fn register_blur_with(
   register_blur_ffi(target, options)
 }
 
+/// Register blur with options and user data.
+///
+/// Events: `{emscripten, {blur, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {blur, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_blur_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_blur_callback-3).
+pub fn register_blur_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_blur_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister blur listeners.
 ///
 /// See [`emscripten:unregister_blur_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_blur_callback-1).
@@ -708,6 +959,21 @@ pub fn register_focus_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_focus_ffi(target, options)
+}
+
+/// Register focus with options and user data.
+///
+/// Events: `{emscripten, {focus, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {focus, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_focus_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_focus_callback-3).
+pub fn register_focus_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_focus_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister focus listeners.
@@ -734,6 +1000,21 @@ pub fn register_focusin_with(
   register_focusin_ffi(target, options)
 }
 
+/// Register focusin with options and user data.
+///
+/// Events: `{emscripten, {focusin, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {focusin, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_focusin_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_focusin_callback-3).
+pub fn register_focusin_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_focusin_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister focusin listeners.
 ///
 /// See [`emscripten:unregister_focusin_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_focusin_callback-1).
@@ -756,6 +1037,21 @@ pub fn register_focusout_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_focusout_ffi(target, options)
+}
+
+/// Register focusout with options and user data.
+///
+/// Events: `{emscripten, {focusout, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {focusout, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_focusout_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_focusout_callback-3).
+pub fn register_focusout_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_focusout_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister focusout listeners.
@@ -784,6 +1080,21 @@ pub fn register_touchstart_with(
   register_touchstart_ffi(target, options)
 }
 
+/// Register touchstart with options and user data.
+///
+/// Events: `{emscripten, {touchstart, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {touchstart, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_touchstart_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_touchstart_callback-3).
+pub fn register_touchstart_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_touchstart_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister touchstart listeners.
 ///
 /// See [`emscripten:unregister_touchstart_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_touchstart_callback-1).
@@ -806,6 +1117,21 @@ pub fn register_touchend_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_touchend_ffi(target, options)
+}
+
+/// Register touchend with options and user data.
+///
+/// Events: `{emscripten, {touchend, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {touchend, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_touchend_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_touchend_callback-3).
+pub fn register_touchend_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_touchend_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister touchend listeners.
@@ -832,6 +1158,21 @@ pub fn register_touchmove_with(
   register_touchmove_ffi(target, options)
 }
 
+/// Register touchmove with options and user data.
+///
+/// Events: `{emscripten, {touchmove, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {touchmove, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_touchmove_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_touchmove_callback-3).
+pub fn register_touchmove_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_touchmove_user_data_ffi(target, options, user_data)
+}
+
 /// Unregister touchmove listeners.
 ///
 /// See [`emscripten:unregister_touchmove_callback/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#unregister_touchmove_callback-1).
@@ -854,6 +1195,21 @@ pub fn register_touchcancel_with(
   options: List(RegisterOption),
 ) -> Result(RegisterOk, Error) {
   register_touchcancel_ffi(target, options)
+}
+
+/// Register touchcancel with options and user data.
+///
+/// Events: `{emscripten, {touchcancel, Event}, UserData}` (outer 3-tuple).
+/// Without user data the shape is `{emscripten, {touchcancel, Event}}`.
+/// `user_data` is any Erlang term; the listener handle retains a copy.
+///
+/// See [`emscripten:register_touchcancel_callback/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#register_touchcancel_callback-3).
+pub fn register_touchcancel_with_user_data(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error) {
+  register_touchcancel_user_data_ffi(target, options, user_data)
 }
 
 /// Unregister touchcancel listeners.
@@ -1095,3 +1451,164 @@ fn register_touchcancel_ffi(
 
 @external(erlang, "atomvm_gleam_emscripten_ffi", "unregister_touchcancel")
 fn unregister_touchcancel_ffi(arg: ListenerOrTarget) -> Result(Nil, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_keypress_user_data")
+fn register_keypress_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_keydown_user_data")
+fn register_keydown_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_keyup_user_data")
+fn register_keyup_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_click_user_data")
+fn register_click_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_dblclick_user_data")
+fn register_dblclick_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mousedown_user_data")
+fn register_mousedown_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mouseup_user_data")
+fn register_mouseup_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mousemove_user_data")
+fn register_mousemove_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mouseenter_user_data")
+fn register_mouseenter_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mouseleave_user_data")
+fn register_mouseleave_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mouseover_user_data")
+fn register_mouseover_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_mouseout_user_data")
+fn register_mouseout_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_wheel_user_data")
+fn register_wheel_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_resize_user_data")
+fn register_resize_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_scroll_user_data")
+fn register_scroll_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_blur_user_data")
+fn register_blur_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_focus_user_data")
+fn register_focus_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_focusin_user_data")
+fn register_focusin_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_focusout_user_data")
+fn register_focusout_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_touchstart_user_data")
+fn register_touchstart_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_touchend_user_data")
+fn register_touchend_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_touchmove_user_data")
+fn register_touchmove_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)
+
+@external(erlang, "atomvm_gleam_emscripten_ffi", "register_touchcancel_user_data")
+fn register_touchcancel_user_data_ffi(
+  target: Html5Target,
+  options: List(RegisterOption),
+  user_data: user_data,
+) -> Result(RegisterOk, Error)

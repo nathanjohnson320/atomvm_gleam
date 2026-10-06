@@ -5,9 +5,8 @@
 //// [`atomvm_gleam/websocket`](atomvm_gleam/websocket.html), which wraps the
 //// ESP-IDF `atomvm_websocket_client` port driver.
 ////
-//// Naming: upstream Erlang exports the module as `websocket`, but that Gleam
-//// path is already taken by the ESP client. This Gleam module is therefore
-//// `emscripten_websocket`; the FFI still calls Erlang `websocket`.
+//// Upstream Erlang module is `websocket` (called via FFI); the Gleam path is
+//// `emscripten_websocket` to avoid clashing with the ESP client module.
 ////
 //// Source:
 //// [`libs/avm_emscripten/src/websocket.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/websocket.erl).
@@ -49,7 +48,6 @@ pub type Error {
   /// Caller is not the current controlling process.
   NotOwner
   /// Socket is already closed (`{error, closed}` upstream).
-  /// Named `SocketClosed` so it does not clash with [`ReadyState`](#ReadyState)'s `Closed`.
   SocketClosed
   Other(String)
 }

@@ -49,8 +49,8 @@ extras used by the badge examples.
 | `atomvm_gleam/json` | `json` | `encode/1` and `decode/1` |
 | `atomvm_gleam/display` | [AtomGL](https://github.com/atomvm/atomgl) `display` port | `open` / `update` / font register/deregister |
 | `atomvm_gleam/websocket` | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) | ESP-IDF port: `open` / send text\|binary / `close` |
-| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop: `run_script`, tracked objects, promise resolve/reject (HTML5 callbacks still pending — [#42](https://github.com/nathanjohnson320/atomvm_gleam/issues/42)) |
-| `atomvm_gleam/emscripten_websocket` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html) `websocket` | Browser WebSocket NIF (full public API); Gleam path differs because `websocket` is taken by the ESP client |
+| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop (`run_script`, tracked objects, promises) + HTML5 event callbacks |
+| `atomvm_gleam/emscripten_websocket` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html) `websocket` | Browser WebSocket NIF (full public API) |
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.
 
@@ -98,7 +98,7 @@ Still useful upstream APIs that are **not** wrapped (or only partially):
 | `json` | OTP-style `encode/2`, `decode/3`, `decode_start` / `decode_continue`, and the fine-grained encode helpers |
 | `mdns` | DNS parse/serialize helpers (`parse_dns_message`, etc.) |
 | `console` | Port-handle overloads (`puts/2`, `flush/1`) |
-| `emscripten` | HTML5 event register/unregister callbacks (keyboard, mouse, touch, …) — tracked in [#42](https://github.com/nathanjohnson320/atomvm_gleam/issues/42) |
+| `emscripten` | `register_*_callback/3` user-data arity |
 
 Intentionally **out of scope** for this package:
 

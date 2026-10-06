@@ -1,9 +1,9 @@
 # atomvm_gleam
 
-Typed Gleam wrappers for [AtomVM](https://github.com/atomvm/AtomVM) **0.7**
-(`release-0.7` / `v0.7.0-beta.x`) — peripherals, networking, crypto,
-[AtomGL](https://github.com/atomvm/atomgl) display, and AtomVM WASM /
-emscripten browser APIs.
+Typed Gleam wrappers for [AtomVM](https://github.com/atomvm/AtomVM)
+**[`v0.7.0-beta.0`](https://github.com/atomvm/AtomVM/releases/tag/v0.7.0-beta.0)** —
+peripherals, networking, crypto, [AtomGL](https://github.com/atomvm/atomgl)
+display, and AtomVM WASM / emscripten browser APIs.
 
 Package version tracks the matching AtomVM pre-release (`0.7.0-beta.0`). APIs
 may still shift until AtomVM ships a stable 0.7.0.
@@ -25,9 +25,9 @@ Hardware examples live in
 
 ## Supported modules
 
-Coverage below is against AtomVM `release-0.7` libs (`avm_esp32`, `avm_rp2`,
-`avm_network`, `avm_emscripten`, `eavmlib`, `estdlib`), plus AtomGL / websocket
-extras used by the badge examples.
+Coverage against AtomVM `v0.7.0-beta.0` / `release-0.7` libs (`avm_esp32`,
+`avm_rp2`, `avm_network`, `avm_emscripten`, `eavmlib`, `estdlib`), plus AtomGL
+and [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client).
 
 | Gleam module | Upstream | Status |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ extras used by the badge examples.
 | `atomvm_gleam/json` | `json` | `encode/1` and `decode/1` |
 | `atomvm_gleam/display` | [AtomGL](https://github.com/atomvm/atomgl) `display` port | `open` / `update` / font register/deregister |
 | `atomvm_gleam/websocket` | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) | ESP-IDF port: `open` / send text\|binary / `close` |
-| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop (`run_script`, tracked objects, promises) + HTML5 event callbacks |
+| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop (`run_script`, tracked objects, promises) + HTML5 event callbacks (`register_*` / `register_*_with`) |
 | `atomvm_gleam/emscripten_websocket` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html) `websocket` | Browser WebSocket NIF (full public API) |
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.
@@ -95,18 +95,20 @@ Still useful upstream APIs that are **not** wrapped (or only partially):
 
 | Area | Missing |
 | --- | --- |
+| `avm_pubsub` | Whole module (`start`, `pub`, `sub`, `unsub`) |
 | `esp` | `partition_mmap/3`, `timer_get_time/0`, legacy `nvs_set_binary` / arity-1 NVS helpers, `sleep_enable_ext1_wakeup/2` |
 | `atomvm` | `posix_tcgetattr` / `posix_tcsetattr` / `posix_tcflush`, `get_creation/0` (deprecated `rand_bytes/1` intentionally omitted — use `crypto.strong_rand_bytes`) |
 | `crypto` | Streaming cipher `crypto_init` / `crypto_update` / `crypto_final` |
 | `json` | OTP-style `encode/2`, `decode/3`, `decode_start` / `decode_continue`, and the fine-grained encode helpers |
 | `mdns` | DNS parse/serialize helpers (`parse_dns_message`, etc.) |
 | `console` | Port-handle overloads (`puts/2`, `flush/1`) |
+| `network` | Convenience arities `wifi_scan/0`, `wait_for_sta/0,1`, `wait_for_ap/0` (config/timeout variants are wrapped) |
 | `emscripten` | `register_*_callback/3` user-data arity |
 
 Intentionally **out of scope** for this package:
 
 - OTP/estdlib staples (`gen_server`, `gen_tcp`, `lists`, …) — use Gleam / `gleam_erlang`
-- Platform-internal HALs (`gpio_hal`, `i2c_hal`, …), alisp, JIT
+- Platform-internal HALs (`gpio_hal`, `i2c_hal`, …), alisp, JIT, `esp32devmode`, `epmd`
 
 PRs welcome for the gaps above.
 

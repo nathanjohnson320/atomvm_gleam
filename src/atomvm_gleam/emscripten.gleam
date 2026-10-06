@@ -24,19 +24,15 @@
 //// process dies, that callback and any other callback for the same event on
 //// the same target are unregistered (upstream behaviour).
 ////
-//// ### Wrapped HTML5 exports
+//// ### HTML5 exports
 ////
-//// Keyboard: keypress, keydown, keyup — register `/1` `/2` + unregister `/1`.
+//// Keyboard: keypress, keydown, keyup.
 //// Mouse: click, dblclick, mousedown, mouseup, mousemove, mouseenter,
-//// mouseleave, mouseover, mouseout — same.
+//// mouseleave, mouseover, mouseout.
 //// Other: wheel, resize, scroll, blur, focus, focusin, focusout, touchstart,
-//// touchend, touchmove, touchcancel — same.
+//// touchend, touchmove, touchcancel.
 ////
-//// ### Still unwrapped
-////
-//// `register_*_callback/3` (user-data arity) — skipped; Gleam has no clean
-//// `any()` user-data type without adding a decode layer. Unregister-by-target
-//// is available via [`ListenerOrTarget`](#ListenerOrTarget).
+//// Upstream `register_*_callback/3` (user-data) is not wrapped.
 ////
 //// Upstream:
 //// [`libs/avm_emscripten/src/emscripten.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/emscripten.erl)
@@ -228,15 +224,11 @@ pub fn error_to_string(error: Error) -> String {
 /// `[MainThread, Async]`. Exception handling is disabled — a throw or compile
 /// error crashes the VM.
 ///
-/// Gleam cannot overload by arity; this is Erlang `run_script/1`.
-///
 /// See [`emscripten:run_script/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#run_script-1).
 @external(erlang, "atomvm_gleam_emscripten_ffi", "run_script")
 pub fn run_script(script: String) -> Result(Nil, Error)
 
 /// Run a script with options (`MainThread`, `Async`).
-///
-/// Gleam cannot overload by arity; this is Erlang `run_script/2`.
 ///
 /// See [`emscripten:run_script/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#run_script-2).
 pub fn run_script_with(
@@ -268,15 +260,11 @@ pub fn get_tracked(
 
 /// Resolve a promise with `0` (default success value).
 ///
-/// Gleam cannot overload by arity; this is Erlang `promise_resolve/1`.
-///
 /// See [`emscripten:promise_resolve/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#promise_resolve-1).
 @external(erlang, "atomvm_gleam_emscripten_ffi", "promise_resolve")
 pub fn promise_resolve(promise: Promise) -> Result(Nil, Error)
 
 /// Resolve a promise with an integer or string value.
-///
-/// Gleam cannot overload by arity; this is Erlang `promise_resolve/2`.
 ///
 /// See [`emscripten:promise_resolve/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#promise_resolve-2).
 pub fn promise_resolve_with(
@@ -288,15 +276,11 @@ pub fn promise_resolve_with(
 
 /// Reject a promise with `0` (default rejection value).
 ///
-/// Gleam cannot overload by arity; this is Erlang `promise_reject/1`.
-///
 /// See [`emscripten:promise_reject/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#promise_reject-1).
 @external(erlang, "atomvm_gleam_emscripten_ffi", "promise_reject")
 pub fn promise_reject(promise: Promise) -> Result(Nil, Error)
 
 /// Reject a promise with an integer or string value.
-///
-/// Gleam cannot overload by arity; this is Erlang `promise_reject/2`.
 ///
 /// See [`emscripten:promise_reject/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#promise_reject-2).
 pub fn promise_reject_with(

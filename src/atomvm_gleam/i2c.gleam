@@ -87,8 +87,7 @@ pub fn write_byte(bus: Bus, byte: Int) -> Result(Nil, Error)
 
 /// Queue a byte sequence inside an open transmission.
 ///
-/// Upstream `i2c:write_bytes/2`. Distinct Gleam name because Gleam cannot
-/// overload `write_bytes/4`.
+/// Upstream `i2c:write_bytes/2`.
 ///
 /// See [`i2c:write_bytes/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_transmission_bytes")
@@ -116,7 +115,6 @@ pub fn read_bytes(
 /// Write `data` to `address` (no register pointer byte).
 ///
 /// Upstream `i2c:write_bytes/3`. One-shot; do not wrap in transmission helpers.
-/// Distinct Gleam name because Gleam cannot overload `write_bytes/4`.
 ///
 /// See [`i2c:write_bytes/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_bytes_to")

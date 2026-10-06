@@ -39,20 +39,21 @@ and [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_c
 | `atomvm_gleam/ledc` | `ledc` | Full public API (timers, channels, fade, duty/freq) |
 | `atomvm_gleam/adc` | `esp_adc` | Full public API (resource + pin convenience paths) |
 | `atomvm_gleam/esp_dac` | `esp_dac` | Public oneshot API (`new_channel`, output, delete) |
-| `atomvm_gleam/esp` | `esp` | Broad coverage (NVS, sleep, partitions, RTC, mount, WDT, MAC) |
+| `atomvm_gleam/esp` | `esp` | Full public API (NVS, sleep, partitions incl. mmap, RTC, mount, WDT, MAC, `timer_get_time`) |
 | `atomvm_gleam/pico` | `pico` | Full public API (CYW43 GPIO + RTC) |
-| `atomvm_gleam/network` | `network` | STA/AP start, wait helpers, scan, RSSI/status, SNTP/mDNS config |
+| `atomvm_gleam/network` | `network` | Full public API (STA/AP, wait helpers, scan, RSSI/status, SNTP/mDNS config) |
 | `atomvm_gleam/http` | `ahttp_client` | Full public API (connect/request/stream/recv/close) |
 | `atomvm_gleam/http_server` | `http_server` | Full public API |
-| `atomvm_gleam/mdns` | `mdns` | `start_link` / `stop` (responder lifecycle) |
+| `atomvm_gleam/mdns` | `mdns` | Responder lifecycle + DNS parse/serialize helpers |
 | `atomvm_gleam/ssl` | `ssl` | Client API (`start`/`stop`/`connect`/`send`/`recv`/`close`) |
-| `atomvm_gleam/console` | `console` | `start` / `puts` / `print` / `print_err` / `flush` |
-| `atomvm_gleam/atomvm` | `atomvm` | Platform, AVM packs, `random`, POSIX I/O, `subprocess` |
-| `atomvm_gleam/crypto` | `crypto` | Hash, MAC, AEAD, PBKDF2, ECDH/EdDH, sign/verify, `strong_rand_bytes` |
-| `atomvm_gleam/json` | `json` | `encode/1` and `decode/1` |
+| `atomvm_gleam/console` | `console` | Full public API (`start`, `puts`/`puts_to`, `print`/`print_err`, `flush`/`flush_handle`) |
+| `atomvm_gleam/atomvm` | `atomvm` | Platform, AVM packs, `random`, POSIX I/O (incl. termios), `subprocess`, `get_creation` |
+| `atomvm_gleam/avm_pubsub` | `avm_pubsub` | Full public API (`start`/`start_named`, `publish`, `sub`/`unsub`) |
+| `atomvm_gleam/crypto` | `crypto` | Hash, MAC, AEAD, streaming cipher, PBKDF2, ECDH/EdDH, sign/verify, `strong_rand_bytes` |
+| `atomvm_gleam/json` | `json` | `encode`/`decode` (+ `/2`/`/3`), streaming decode, fine-grained encode helpers (default encoder/decoders) |
 | `atomvm_gleam/display` | [AtomGL](https://github.com/atomvm/atomgl) `display` port | `open` / `update` / font register/deregister |
 | `atomvm_gleam/websocket` | [`atomvm_websocket_client`](https://github.com/nerves-hub/atomvm_websocket_client) | ESP-IDF port: `open` / send text\|binary / `close` |
-| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop (`run_script`, tracked objects, promises) + HTML5 event callbacks (`register_*` / `register_*_with`) |
+| `atomvm_gleam/emscripten` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html) `emscripten` | JS interop + HTML5 callbacks (`register_*` / `register_*_with` / `register_*_with_user_data`) |
 | `atomvm_gleam/emscripten_websocket` | [`avm_emscripten`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html) `websocket` | Browser WebSocket NIF (full public API) |
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.
@@ -91,26 +92,18 @@ guide for hosting options; this package does not document a full deploy tutorial
 
 ## Known gaps vs AtomVM 0.7
 
-Still useful upstream APIs that are **not** wrapped (or only partially):
+Public AtomVM-facing modules targeted by this package are wrapped. Remaining
+intentional omissions:
 
-| Area | Missing |
+| Area | Notes |
 | --- | --- |
-| `avm_pubsub` | Whole module (`start`, `pub`, `sub`, `unsub`) |
-| `esp` | `partition_mmap/3`, `timer_get_time/0`, legacy `nvs_set_binary` / arity-1 NVS helpers, `sleep_enable_ext1_wakeup/2` |
-| `atomvm` | `posix_tcgetattr` / `posix_tcsetattr` / `posix_tcflush`, `get_creation/0` (deprecated `rand_bytes/1` intentionally omitted — use `crypto.strong_rand_bytes`) |
-| `crypto` | Streaming cipher `crypto_init` / `crypto_update` / `crypto_final` |
-| `json` | OTP-style `encode/2`, `decode/3`, `decode_start` / `decode_continue`, and the fine-grained encode helpers |
-| `mdns` | DNS parse/serialize helpers (`parse_dns_message`, etc.) |
-| `console` | Port-handle overloads (`puts/2`, `flush/1`) |
-| `network` | Convenience arities `wifi_scan/0`, `wait_for_sta/0,1`, `wait_for_ap/0` (config/timeout variants are wrapped) |
-| `emscripten` | `register_*_callback/3` user-data arity |
+| `atomvm` | Deprecated `rand_bytes/1` omitted — use `crypto.strong_rand_bytes` |
+| `json` | Custom OTP encoder funs / custom decoder callback maps — not expressible cleanly in Gleam; default encoder/decoders are provided |
 
 Intentionally **out of scope** for this package:
 
 - OTP/estdlib staples (`gen_server`, `gen_tcp`, `lists`, …) — use Gleam / `gleam_erlang`
 - Platform-internal HALs (`gpio_hal`, `i2c_hal`, …), alisp, JIT, `esp32devmode`, `epmd`
-
-PRs welcome for the gaps above.
 
 ## Development
 

@@ -16,6 +16,10 @@
     strong_rand_bytes/1,
     crypto_one_time/5,
     crypto_one_time_iv/6,
+    crypto_init/4,
+    crypto_init_iv/5,
+    crypto_update/2,
+    crypto_final/1,
     crypto_one_time_aead_encrypt/5,
     crypto_one_time_aead_encrypt_tag_length/6,
     crypto_one_time_aead_decrypt/6,
@@ -88,6 +92,24 @@ crypto_one_time_iv(Cipher, Key, IV, Data, Encrypt, Padding) ->
             cipher(Cipher), Key, IV, Data, crypto_opts(Encrypt, Padding)
         )
     end).
+
+crypto_init(Cipher, Key, Encrypt, Padding) ->
+    wrap_binary(fun() ->
+        crypto:crypto_init(cipher(Cipher), Key, crypto_opts(Encrypt, Padding))
+    end).
+
+crypto_init_iv(Cipher, Key, IV, Encrypt, Padding) ->
+    wrap_binary(fun() ->
+        crypto:crypto_init(
+            cipher(Cipher), Key, IV, crypto_opts(Encrypt, Padding)
+        )
+    end).
+
+crypto_update(State, Data) ->
+    wrap_binary(fun() -> crypto:crypto_update(State, Data) end).
+
+crypto_final(State) ->
+    wrap_binary(fun() -> crypto:crypto_final(State) end).
 
 crypto_one_time_aead_encrypt(Cipher, Key, IV, Plaintext, AAD) ->
     wrap_binary(fun() ->

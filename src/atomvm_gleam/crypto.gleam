@@ -11,12 +11,14 @@
 /// **Wrapped:** `hash/2`, `hash_init/1`, `hash_update/2`, `hash_final/1`,
 /// `mac/4`, `mac_init/3`, `mac_update/2`, `mac_final/1`, `mac_finalN/2`,
 /// `strong_rand_bytes/1`, `crypto_one_time/4`, `crypto_one_time/5`,
-/// `crypto_one_time_aead/6`, `crypto_one_time_aead/7`, `pbkdf2_hmac/5`,
+/// `crypto_one_time_aead/6`, `crypto_one_time_aead/7`, streaming cipher
+/// `crypto_init/3,4`, `crypto_update/2`, `crypto_final/1`, `pbkdf2_hmac/5`,
 /// `generate_key/2`, `compute_key/4`, `sign/4`, `verify/5`, `hash_equals/2`,
 /// `info_lib/0`.
 ///
-/// **Not wrapped yet:** streaming cipher `crypto_init/3,4`,
-/// `crypto_update/2`, `crypto_final/1`.
+/// **Streaming cipher notes:** state is mutable (unlike hash/MAC). After
+/// `crypto_final`, the state must not be reused (`badarg`). `{padding,
+/// pkcs_padding}` is supported only with CBC ciphers on AtomVM.
 import gleam/option.{type Option}
 
 /// Opaque streaming hash state (`hash_state()`).
@@ -24,6 +26,12 @@ pub type HashState
 
 /// Opaque streaming MAC state (`mac_state()`).
 pub type MacState
+
+/// Opaque streaming cipher state (`crypto_state()`).
+///
+/// Unlike hash/MAC state, this handle is mutated in place by
+/// [`crypto_update`](#crypto_update) and [`crypto_final`](#crypto_final).
+pub type CipherState
 
 /// Errors from `:crypto` NIFs and helpers.
 pub type Error {
@@ -291,6 +299,55 @@ pub fn crypto_one_time_iv(
   crypto_one_time_iv_ffi(cipher, key, iv, data, encrypt, padding)
 }
 
+/// Start a streaming cipher for ciphers that do not use an IV (ECB).
+///
+/// Equivalent to upstream `crypto_init(Cipher, Key, <<>>, FlagOrOptions)`.
+///
+/// See [`crypto:crypto_init/3`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/crypto.html#crypto-init-3).
+pub fn crypto_init(
+  cipher: CipherNoIv,
+  key: BitArray,
+  opts: CryptoOpts,
+) -> Result(CipherState, Error) {
+  let CryptoOpts(encrypt:, padding:) = opts
+  crypto_init_ffi(cipher, key, encrypt, padding)
+}
+
+/// Start a streaming cipher for ciphers that use an IV.
+///
+/// PKCS padding is supported only with CBC ciphers on AtomVM.
+///
+/// See [`crypto:crypto_init/4`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/crypto.html#crypto-init-4).
+pub fn crypto_init_iv(
+  cipher: CipherIv,
+  key: BitArray,
+  iv: BitArray,
+  opts: CryptoOpts,
+) -> Result(CipherState, Error) {
+  let CryptoOpts(encrypt:, padding:) = opts
+  crypto_init_iv_ffi(cipher, key, iv, encrypt, padding)
+}
+
+/// Feed `data` into a streaming cipher; returns ciphertext/plaintext produced
+/// so far. Mutates `state` in place.
+///
+/// See [`crypto:crypto_update/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/crypto.html#crypto-update-2).
+pub fn crypto_update(
+  state: CipherState,
+  data: BitArray,
+) -> Result(BitArray, Error) {
+  crypto_update_ffi(state, data)
+}
+
+/// Finalize a streaming cipher and return any remaining bytes.
+///
+/// After this call the state must not be reused on AtomVM (`badarg`).
+///
+/// See [`crypto:crypto_final/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/crypto.html#crypto-final-1).
+pub fn crypto_final(state: CipherState) -> Result(BitArray, Error) {
+  crypto_final_ffi(state)
+}
+
 /// AEAD encrypt with the default tag length.
 ///
 /// Returns `#(ciphertext, tag)`.
@@ -537,6 +594,32 @@ fn crypto_one_time_iv_ffi(
   encrypt: Bool,
   padding: Option(Padding),
 ) -> Result(BitArray, Error)
+
+@external(erlang, "atomvm_gleam_crypto_ffi", "crypto_init")
+fn crypto_init_ffi(
+  cipher: CipherNoIv,
+  key: BitArray,
+  encrypt: Bool,
+  padding: Option(Padding),
+) -> Result(CipherState, Error)
+
+@external(erlang, "atomvm_gleam_crypto_ffi", "crypto_init_iv")
+fn crypto_init_iv_ffi(
+  cipher: CipherIv,
+  key: BitArray,
+  iv: BitArray,
+  encrypt: Bool,
+  padding: Option(Padding),
+) -> Result(CipherState, Error)
+
+@external(erlang, "atomvm_gleam_crypto_ffi", "crypto_update")
+fn crypto_update_ffi(
+  state: CipherState,
+  data: BitArray,
+) -> Result(BitArray, Error)
+
+@external(erlang, "atomvm_gleam_crypto_ffi", "crypto_final")
+fn crypto_final_ffi(state: CipherState) -> Result(BitArray, Error)
 
 @external(erlang, "atomvm_gleam_crypto_ffi", "crypto_one_time_aead_encrypt")
 fn crypto_one_time_aead_encrypt_ffi(

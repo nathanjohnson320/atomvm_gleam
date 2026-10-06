@@ -1,10 +1,10 @@
 -module(atomvm_gleam_console_ffi).
--export([start/0, puts/1, print/1, flush/0, print_err/1]).
+-export([start/0, puts/1, puts_to/2, print/1, flush/0, flush_handle/1, print_err/1]).
 
 start() ->
     try
-        _Port = console:start(),
-        {ok, nil}
+        Port = console:start(),
+        {ok, Port}
     catch
         error:badarg ->
             {error, badarg};
@@ -19,11 +19,17 @@ start() ->
 puts(Text) ->
     wrap_call(fun() -> console:puts(Text) end).
 
+puts_to(Console, Text) ->
+    wrap_call(fun() -> console:puts(Console, Text) end).
+
 print(Text) ->
     wrap_call(fun() -> console:print(Text) end).
 
 flush() ->
     wrap_call(fun() -> console:flush() end).
+
+flush_handle(Console) ->
+    wrap_call(fun() -> console:flush(Console) end).
 
 print_err(Text) ->
     wrap_call(fun() -> console:print_err(Text) end).

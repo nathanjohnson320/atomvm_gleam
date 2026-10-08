@@ -9,8 +9,7 @@ description = "Typed Gleam wrappers for AtomVM 0.7 peripherals, networking, cryp
 licences = ["MIT"]
 repository = { type = "github", user = "nathanjohnson320", repo = "atomvm_gleam" }
 links = [
-  { title = "HexDocs", href = "https://hexdocs.pm/atomvm_gleam/" },
-  { title = "Github", href = "https://github.com/nathanjohnson320/atomvm_gleam"}
+  { title = "HexDocs", href = "https://hexdocs.pm/atomvm_gleam/" }
 ]
 
 [dependencies]

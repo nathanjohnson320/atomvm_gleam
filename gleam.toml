@@ -1,5 +1,5 @@
 name = "atomvm_gleam"
-version = "0.7.0-beta.0-1-1"
+version = "0.7.0-beta.0-1"
 gleam = ">= 1.18.1"
 target = "erlang"
 

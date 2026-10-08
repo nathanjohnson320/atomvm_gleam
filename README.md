@@ -21,6 +21,10 @@ atomvm_gleam = ">= 0.7.0-beta.0 and < 0.8.0"
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.
 
+## Documentation
+
+- [HexDocs](https://atomvm-gleam.hexdocs.pm)
+
 ## Known gaps
 
 - `atomvm.rand_bytes/1` omitted (deprecated; use `crypto.strong_rand_bytes`)

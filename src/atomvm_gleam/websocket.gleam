@@ -60,8 +60,13 @@ pub fn error_to_string(error: Error) -> String {
 /// Open a websocket. Returns once the port exists — wait for `connected`
 /// before sending.
 pub fn open(config: Config) -> Result(Websocket, Error) {
-  let Config(url:, owner:, verify:, network_timeout_ms:, disable_auto_reconnect:) =
-    config
+  let Config(
+    url:,
+    owner:,
+    verify:,
+    network_timeout_ms:,
+    disable_auto_reconnect:,
+  ) = config
   open_ffi(url, owner, verify, network_timeout_ms, disable_auto_reconnect)
 }
 

@@ -23,7 +23,8 @@
     hold_dis/1,
     deep_sleep_hold_en/0,
     deep_sleep_hold_dis/0,
-    wakeup_enable/2
+    wakeup_enable/2,
+    set_sysfs_base/1
 ]).
 
 open() ->
@@ -97,6 +98,19 @@ deep_sleep_hold_dis() ->
 
 wakeup_enable(Pin, Level) ->
     wrap_ok(gpio:wakeup_enable(pin_term(Pin), level_atom(Level))).
+
+%% Generic UNIX / Linux only (`avm_unix` gpio). Gleam String → Erlang string list.
+set_sysfs_base(Dir) ->
+    try
+        wrap_ok(gpio:set_sysfs_base(unicode:characters_to_list(Dir)))
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Reason ->
+            wrap_reason(Reason)
+    end.
 
 %% Gleam `PinNum(N)` / `WlPin(N)` → AtomVM pin term (`N` or `{wl, N}`).
 pin_term({pin_num, N}) when is_integer(N) ->

@@ -93,11 +93,7 @@ pub fn update(display: Display, items: List(a)) -> Nil {
 /// `name` is turned into an Erlang atom (for example `"dogica"` → `dogica`).
 ///
 /// See [`port:call/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/port.html#call-2).
-pub fn register_font(
-  display: Display,
-  name: String,
-  bytes: BitArray,
-) -> Nil {
+pub fn register_font(display: Display, name: String, bytes: BitArray) -> Nil {
   register_font_ffi(display, name, bytes)
 }
 
@@ -130,11 +126,7 @@ fn open_ffi(
 fn update_ffi(display: Display, items: List(a)) -> Nil
 
 @external(erlang, "atomvm_gleam_display_ffi", "register_font")
-fn register_font_ffi(
-  display: Display,
-  name: String,
-  bytes: BitArray,
-) -> Nil
+fn register_font_ffi(display: Display, name: String, bytes: BitArray) -> Nil
 
 @external(erlang, "atomvm_gleam_display_ffi", "deregister_font")
 fn deregister_font_ffi(display: Display, name: String) -> Nil

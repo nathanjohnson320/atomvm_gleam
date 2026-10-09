@@ -11,8 +11,9 @@
 ///
 /// Source: [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl).
 ///
-/// mDNS here is **config plumbing** on `network:start/1` only
-/// (`{mdns, [{host, …}, {ttl, …}]}`). A standalone mdns module is out of scope.
+/// mDNS here is **config plumbing** on `network:start/1` /
+/// `network:start_link/1` only (`{mdns, [{host, …}, {ttl, …}]}`).
+/// For the standalone responder, see [`atomvm_gleam/mdns`](atomvm_gleam/mdns.html).
 import gleam/erlang/process.{type Pid}
 import gleam/option.{type Option}
 
@@ -137,6 +138,20 @@ pub fn start(sta: StaConfig, sntp: Option(SntpConfig)) -> Result(Nil, Error) {
   start_with(option.Some(sta), option.None, sntp, option.None)
 }
 
+/// Start and link the network interface (STA + optional SNTP).
+///
+/// Same config as [`start`](#start), but the network gen_server is linked to
+/// the caller (`network:start_link/1`).
+///
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl)
+/// and the [0.7 guide](https://doc.atomvm.org/release-0.7/network-programming-guide.html).
+pub fn start_link(
+  sta: StaConfig,
+  sntp: Option(SntpConfig),
+) -> Result(Nil, Error) {
+  start_link_with(option.Some(sta), option.None, sntp, option.None)
+}
+
 /// Start the network with optional STA, AP, SNTP, and mDNS sections.
 ///
 /// At least one of `sta` or `ap` should be provided. STA+AP is supported.
@@ -148,6 +163,31 @@ pub fn start_with(
   ap: Option(ApConfig),
   sntp: Option(SntpConfig),
   mdns: Option(MdnsConfig),
+) -> Result(Nil, Error) {
+  do_start(sta, ap, sntp, mdns, False)
+}
+
+/// Start and link the network with optional STA, AP, SNTP, and mDNS sections.
+///
+/// Same config as [`start_with`](#start_with), but linked to the caller
+/// (`network:start_link/1`).
+///
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl).
+pub fn start_link_with(
+  sta: Option(StaConfig),
+  ap: Option(ApConfig),
+  sntp: Option(SntpConfig),
+  mdns: Option(MdnsConfig),
+) -> Result(Nil, Error) {
+  do_start(sta, ap, sntp, mdns, True)
+}
+
+fn do_start(
+  sta: Option(StaConfig),
+  ap: Option(ApConfig),
+  sntp: Option(SntpConfig),
+  mdns: Option(MdnsConfig),
+  linked: Bool,
 ) -> Result(Nil, Error) {
   let #(sta_enabled, managed, ssid, psk, dhcp_hostname, sta_notify) = case sta {
     option.None -> #(
@@ -210,27 +250,52 @@ pub fn start_with(
     option.None -> #(False, "", option.None)
     option.Some(MdnsConfig(host:, ttl:)) -> #(True, host, ttl)
   }
-  start_ffi(
-    sta_enabled,
-    managed,
-    ssid,
-    psk,
-    dhcp_hostname,
-    sta_notify,
-    ap_enabled,
-    ap_ssid,
-    ap_psk,
-    ap_channel,
-    ap_ssid_hidden,
-    ap_max_connections,
-    ap_notify,
-    sntp_enabled,
-    sntp_host,
-    sntp_notify,
-    mdns_enabled,
-    mdns_host,
-    mdns_ttl,
-  )
+  case linked {
+    True ->
+      start_link_ffi(
+        sta_enabled,
+        managed,
+        ssid,
+        psk,
+        dhcp_hostname,
+        sta_notify,
+        ap_enabled,
+        ap_ssid,
+        ap_psk,
+        ap_channel,
+        ap_ssid_hidden,
+        ap_max_connections,
+        ap_notify,
+        sntp_enabled,
+        sntp_host,
+        sntp_notify,
+        mdns_enabled,
+        mdns_host,
+        mdns_ttl,
+      )
+    False ->
+      start_ffi(
+        sta_enabled,
+        managed,
+        ssid,
+        psk,
+        dhcp_hostname,
+        sta_notify,
+        ap_enabled,
+        ap_ssid,
+        ap_psk,
+        ap_channel,
+        ap_ssid_hidden,
+        ap_max_connections,
+        ap_notify,
+        sntp_enabled,
+        sntp_host,
+        sntp_notify,
+        mdns_enabled,
+        mdns_host,
+        mdns_ttl,
+      )
+  }
 }
 
 /// Connect using credentials from the last `start` / `sta_connect_to` config.
@@ -353,6 +418,29 @@ pub fn stop() -> Result(Nil, Error)
 
 @external(erlang, "atomvm_gleam_network_ffi", "start")
 fn start_ffi(
+  sta_enabled: Bool,
+  managed: Bool,
+  ssid: Option(String),
+  psk: Option(String),
+  dhcp_hostname: Option(String),
+  sta_notify: Pid,
+  ap_enabled: Bool,
+  ap_ssid: Option(String),
+  ap_psk: Option(String),
+  ap_channel: Option(Int),
+  ap_ssid_hidden: Option(Bool),
+  ap_max_connections: Option(Int),
+  ap_notify: Pid,
+  sntp_enabled: Bool,
+  sntp_host: String,
+  sntp_notify: Pid,
+  mdns_enabled: Bool,
+  mdns_host: String,
+  mdns_ttl: Option(Int),
+) -> Result(Nil, Error)
+
+@external(erlang, "atomvm_gleam_network_ffi", "start_link")
+fn start_link_ffi(
   sta_enabled: Bool,
   managed: Bool,
   ssid: Option(String),

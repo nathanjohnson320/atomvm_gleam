@@ -1,6 +1,7 @@
 -module(atomvm_gleam_network_ffi).
 -export([
     start/19,
+    start_link/19,
     sta_connect/0,
     sta_connect_to/2,
     sta_disconnect/0,
@@ -38,29 +39,115 @@ start(
     MdnsHost,
     MdnsTtl
 ) ->
-    Config =
-        maybe_sta(StaEnabled, Managed, Ssid, Psk, DhcpHostname, StaNotify) ++
-            maybe_ap(
-                ApEnabled,
-                ApSsid,
-                ApPsk,
-                ApChannel,
-                ApSsidHidden,
-                ApMaxConnections,
-                ApNotify
-            ) ++
-            maybe_sntp(SntpEnabled, SntpHost, SntpNotify) ++
-            maybe_mdns(MdnsEnabled, MdnsHost, MdnsTtl),
-    case network:start(Config) of
-        {ok, _Pid} ->
-            {ok, nil};
-        ok ->
-            {ok, nil};
-        {error, Reason} ->
-            wrap_reason(Reason);
-        error ->
-            {error, failed}
-    end.
+    Config = build_config(
+        StaEnabled,
+        Managed,
+        Ssid,
+        Psk,
+        DhcpHostname,
+        StaNotify,
+        ApEnabled,
+        ApSsid,
+        ApPsk,
+        ApChannel,
+        ApSsidHidden,
+        ApMaxConnections,
+        ApNotify,
+        SntpEnabled,
+        SntpHost,
+        SntpNotify,
+        MdnsEnabled,
+        MdnsHost,
+        MdnsTtl
+    ),
+    wrap_start(network:start(Config)).
+
+start_link(
+    StaEnabled,
+    Managed,
+    Ssid,
+    Psk,
+    DhcpHostname,
+    StaNotify,
+    ApEnabled,
+    ApSsid,
+    ApPsk,
+    ApChannel,
+    ApSsidHidden,
+    ApMaxConnections,
+    ApNotify,
+    SntpEnabled,
+    SntpHost,
+    SntpNotify,
+    MdnsEnabled,
+    MdnsHost,
+    MdnsTtl
+) ->
+    Config = build_config(
+        StaEnabled,
+        Managed,
+        Ssid,
+        Psk,
+        DhcpHostname,
+        StaNotify,
+        ApEnabled,
+        ApSsid,
+        ApPsk,
+        ApChannel,
+        ApSsidHidden,
+        ApMaxConnections,
+        ApNotify,
+        SntpEnabled,
+        SntpHost,
+        SntpNotify,
+        MdnsEnabled,
+        MdnsHost,
+        MdnsTtl
+    ),
+    wrap_start(network:start_link(Config)).
+
+build_config(
+    StaEnabled,
+    Managed,
+    Ssid,
+    Psk,
+    DhcpHostname,
+    StaNotify,
+    ApEnabled,
+    ApSsid,
+    ApPsk,
+    ApChannel,
+    ApSsidHidden,
+    ApMaxConnections,
+    ApNotify,
+    SntpEnabled,
+    SntpHost,
+    SntpNotify,
+    MdnsEnabled,
+    MdnsHost,
+    MdnsTtl
+) ->
+    maybe_sta(StaEnabled, Managed, Ssid, Psk, DhcpHostname, StaNotify) ++
+        maybe_ap(
+            ApEnabled,
+            ApSsid,
+            ApPsk,
+            ApChannel,
+            ApSsidHidden,
+            ApMaxConnections,
+            ApNotify
+        ) ++
+        maybe_sntp(SntpEnabled, SntpHost, SntpNotify) ++
+        maybe_mdns(MdnsEnabled, MdnsHost, MdnsTtl).
+
+wrap_start({ok, _Pid}) ->
+    {ok, nil};
+wrap_start(ok) ->
+    {ok, nil};
+wrap_start({error, Reason}) ->
+    wrap_reason(Reason);
+wrap_start(error) ->
+    {error, failed}.
 
 sta_connect() ->
     wrap_ok(network:sta_connect()).

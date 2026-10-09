@@ -2,6 +2,7 @@
 ////
 //// ESP32 source: [`libs/avm_esp32/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
 //// RP2 source: [`libs/avm_rp2/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+//// UNIX source: [`libs/avm_unix/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
 //// Edoc fallback: [Module gpio](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html).
 ////
 //// On Pico-W, the onboard LED is the wireless-bank pin `WlPin(0)` (Erlang
@@ -281,3 +282,12 @@ pub fn deep_sleep_hold_dis() -> Result(Nil, Error)
 /// See [`gpio:wakeup_enable/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/gpio.html#wakeup-enable-2).
 @external(erlang, "atomvm_gleam_gpio_ffi", "wakeup_enable")
 pub fn wakeup_enable(pin: Pin, level: Level) -> Result(Nil, Error)
+
+/// Override the sysfs GPIO base directory (generic UNIX / Linux only).
+///
+/// Defaults to `/sys/class/gpio`. Useful for tests that stub a sysfs tree.
+/// Not available on ESP32 / RP2 / STM32 builds.
+///
+/// See [`gpio:set_sysfs_base/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
+@external(erlang, "atomvm_gleam_gpio_ffi", "set_sysfs_base")
+pub fn set_sysfs_base(dir: String) -> Result(Nil, Error)

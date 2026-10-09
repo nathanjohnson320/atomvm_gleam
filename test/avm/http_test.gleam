@@ -1,20 +1,32 @@
 //// HTTP client connect smoke. Full request/stream/recv path is
 //// `http_workflow_test` (GenericUnix). Here we only prove `connect` is
 //// available on platforms that own TCP/HTTP — never tag uncalled APIs.
+////
+//// Pico / Node WASM: calling `http.connect` can **abort the VM** (not return
+//// Error). That is a harness limit, not soft coverage — we no-op / SKIP rather
+//// than risk killing the suite. Prove connect on unix / ESP / STM instead.
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/http
 import avm/check.{type Failure}
 import avm/expect
+import avm/integration
 import gleam/option
 import gleam/result
 
 pub fn run() -> Result(Nil, Failure) {
-  // Node WASM / Pico: incomplete TCP stacks can abort instead of returning.
   case atomvm.platform() {
-    atomvm.Emscripten | atomvm.Pico -> check.ok()
-    atomvm.GenericUnix | atomvm.Esp32 -> http_connect_owned()
-    atomvm.Stm32 -> http_connect_owned()
+    atomvm.Emscripten ->
+      integration.skip("http.connect (Node WASM TCP abort risk)")
+    atomvm.Pico ->
+      case integration.env_flag("AVM_GLEAM_INTEGRATION") {
+        False ->
+          integration.skip(
+            "http.connect (rp2040js TCP abort risk; set AVM_GLEAM_INTEGRATION=1 on hardware)",
+          )
+        True -> http_connect_owned()
+      }
+    atomvm.GenericUnix | atomvm.Esp32 | atomvm.Stm32 -> http_connect_owned()
   }
 }
 

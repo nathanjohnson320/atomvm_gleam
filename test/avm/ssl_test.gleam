@@ -1,17 +1,21 @@
-//// SSL connect smoke on ESP32 and GenericUnix (mbedtls). `connect` must not
-//// return NotSupported; connection refused / handshake failure counts as
-//// exercising the FFI. send/recv/close only when connect returns a socket.
+//// SSL connect smoke where mbedtls is expected (unix, ESP32, Pico, STM32).
+//// `connect` must not return NotSupported; connection refused / handshake
+//// failure counts as exercising the FFI. send/recv/close only when a socket
+//// opens. Pico under rp2040js: TCP can abort the VM — SKIP unless INTEGRATION
+//// (same harness limit as http_test). WASM: no-op.
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/ssl
 import avm/check.{type Failure}
 import avm/expect
+import avm/integration
 import gleam/result
 
 pub fn run() -> Result(Nil, Failure) {
   case atomvm.platform() {
-    atomvm.Esp32 | atomvm.GenericUnix -> ssl_socket_apis()
-    _ -> check.ok()
+    atomvm.Emscripten -> check.ok()
+    atomvm.Esp32 | atomvm.GenericUnix | atomvm.Stm32 -> ssl_socket_apis()
+    atomvm.Pico -> ssl_pico()
   }
 }
 
@@ -20,6 +24,16 @@ fn ssl_ns(e: ssl.Error) -> Bool {
     ssl.NotSupported -> True
     ssl.Other(reason) -> expect.is_undef_reason(reason)
     _ -> False
+  }
+}
+
+fn ssl_pico() -> Result(Nil, Failure) {
+  case integration.env_flag("AVM_GLEAM_INTEGRATION") {
+    False ->
+      integration.skip(
+        "ssl.connect (rp2040js TCP abort risk; set AVM_GLEAM_INTEGRATION=1 on hardware)",
+      )
+    True -> ssl_socket_apis()
   }
 }
 

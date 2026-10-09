@@ -59,7 +59,9 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gperf zlib1g-dev libmbedtls-dev socat
+          # Mbed TLS comes from scripts/fetch_atomvm.sh (3.6.3+) so ECDSA
+          # sign/verify work; Ubuntu's libmbedtls-dev is still 2.28.x.
+          sudo apt-get install -y cmake g++ gperf zlib1g-dev socat python3
       - name: Pack and run unix harness
         run: |
           chmod +x scripts/*.sh

@@ -13,6 +13,9 @@ ATOMVM_BIN="$ATOMVM_CACHE/unix/AtomVM"
 ATOMVMLIB="$ATOMVM_CACHE/libs/atomvmlib.avm"
 LOG="$(mktemp)"
 
+# AtomVM may be linked against $MBEDTLS_PREFIX (3.6+), not distro 2.28.
+export_mbedtls_lib_path
+
 echo "Running: $ATOMVM_BIN $TESTS_AVM $ATOMVMLIB"
 set +e
 "$ATOMVM_BIN" "$TESTS_AVM" "$ATOMVMLIB" 2>&1 | tee "$LOG"

@@ -337,6 +337,54 @@ fetch_libs() {
   echo "atomvmlib ready: $lib"
 }
 
+# Build Mbed TLS 3.6+ into $MBEDTLS_PREFIX (ECDSA needs > 3.6.1; Ubuntu apt is 2.28).
+ensure_mbedtls() {
+  local stamp="$MBEDTLS_PREFIX/.atomvm_mbedtls_version"
+  local shlib="libmbedcrypto.so"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    shlib="libmbedcrypto.dylib"
+  fi
+  if [[ -f "$stamp" && "$(cat "$stamp")" == "$MBEDTLS_VERSION" \
+      && -f "$MBEDTLS_PREFIX/include/mbedtls/version.h" \
+      && -e "$MBEDTLS_PREFIX/lib/$shlib" ]]; then
+    echo "mbedtls ready: $MBEDTLS_PREFIX ($MBEDTLS_VERSION)"
+    return 0
+  fi
+
+  echo "Building Mbed TLS $MBEDTLS_VERSION → $MBEDTLS_PREFIX…"
+  require_cmd git
+  require_cmd cmake
+  require_cmd make
+  local src="$ATOMVM_CACHE/src/mbedtls"
+  local build="$ATOMVM_CACHE/src/mbedtls-build"
+  rm -rf "$MBEDTLS_PREFIX" "$build"
+  if [[ ! -d "$src/.git" ]] || [[ "$(git -C "$src" describe --tags --exact-match 2>/dev/null || true)" != "$MBEDTLS_VERSION" ]]; then
+    rm -rf "$src"
+    mkdir -p "$(dirname "$src")"
+    git clone --depth 1 --branch "$MBEDTLS_VERSION" \
+      https://github.com/Mbed-TLS/mbedtls.git "$src"
+    git -C "$src" submodule update --init --recursive --depth 1
+  fi
+  mkdir -p "$build"
+  (
+    cd "$build"
+    # MBEDTLS_FATAL_WARNINGS=OFF: AppleClang 21+ errors on TLS 1.3 label
+    # arrays; AtomVM's FetchMbedTLS.cmake suppresses the same diagnostics.
+    cmake "$src" \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="$MBEDTLS_PREFIX" \
+      -DMBEDTLS_FATAL_WARNINGS=OFF \
+      -DUSE_SHARED_MBEDTLS_LIBRARY=On \
+      -DUSE_STATIC_MBEDTLS_LIBRARY=Off \
+      -DENABLE_TESTING=OFF \
+      -DENABLE_PROGRAMS=OFF
+    cmake --build . -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
+    cmake --install .
+  )
+  printf '%s\n' "$MBEDTLS_VERSION" >"$stamp"
+  echo "mbedtls ready: $MBEDTLS_PREFIX ($MBEDTLS_VERSION)"
+}
+
 fetch_unix() {
   if [[ -n "${ATOMVM_BIN:-}" && -x "$ATOMVM_BIN" ]]; then
     ln -sfn "$ATOMVM_BIN" "$ATOMVM_CACHE/unix/AtomVM"
@@ -350,8 +398,11 @@ fetch_unix() {
     fetch_libs
     return 0
   fi
-  if [[ -x "$ATOMVM_CACHE/unix/AtomVM" ]]; then
-    echo "unix AtomVM ready: $ATOMVM_CACHE/unix/AtomVM"
+
+  local stamp="$ATOMVM_CACHE/unix/.built-with-mbedtls"
+  if [[ -x "$ATOMVM_CACHE/unix/AtomVM" && -f "$stamp" \
+      && "$(cat "$stamp")" == "$MBEDTLS_VERSION" ]]; then
+    echo "unix AtomVM ready: $ATOMVM_CACHE/unix/AtomVM (mbedtls $MBEDTLS_VERSION)"
     fetch_libs
     return 0
   fi
@@ -361,6 +412,7 @@ fetch_unix() {
   require_cmd cmake
   require_cmd make
   fetch_packbeam
+  ensure_mbedtls
   local src="$ATOMVM_CACHE/src/AtomVM"
   if [[ ! -d "$src/.git" ]]; then
     rm -rf "$src"
@@ -369,10 +421,14 @@ fetch_unix() {
       https://github.com/atomvm/AtomVM.git "$src"
   fi
   local build="$ATOMVM_CACHE/src/AtomVM-build-unix"
+  # Force a clean configure so a prior system-mbedtls build cannot linger.
+  rm -rf "$build"
   mkdir -p "$build"
   (
     cd "$build"
-    cmake "$src" -DPACKBEAM_PATH="$PACKBEAM_BIN"
+    cmake "$src" \
+      -DPACKBEAM_PATH="$PACKBEAM_BIN" \
+      -DMBEDTLS_ROOT_DIR="$MBEDTLS_PREFIX"
     cmake --build . -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
   )
   local bin
@@ -383,6 +439,7 @@ fetch_unix() {
   fi
   cp "$bin" "$ATOMVM_CACHE/unix/AtomVM"
   chmod +x "$ATOMVM_CACHE/unix/AtomVM"
+  printf '%s\n' "$MBEDTLS_VERSION" >"$stamp"
   local lib
   lib="$(find "$build" -name 'atomvmlib.avm' | head -n 1 || true)"
   if [[ -n "$lib" ]]; then

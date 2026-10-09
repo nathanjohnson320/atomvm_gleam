@@ -403,6 +403,7 @@ fn ec_family() -> Result(Nil, Failure) {
         crypto.compute_key_ecdh(crypto.Secp256r1, public_a, priv_b),
       ))
       use _ <- result.try(check.assert_eq("ecdh match", secret_a, secret_b))
+      // Requires Mbed TLS > 3.6.1. Unix CI builds that via fetch_atomvm.sh.
       use sig <- result.try(must(
         "crypto.sign_ecdsa",
         crypto.sign_ecdsa(crypto.Sha256, <<"msg">>, priv_a, crypto.Secp256r1),

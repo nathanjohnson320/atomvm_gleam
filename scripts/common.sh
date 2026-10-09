@@ -6,6 +6,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ATOMVM_VERSION="${ATOMVM_VERSION:-v0.7.0-beta.0}"
 ATOMVM_CACHE="${ATOMVM_CACHE:-$ROOT/.atomvm/$ATOMVM_VERSION}"
 RELEASE_BASE="https://github.com/atomvm/AtomVM/releases/download/${ATOMVM_VERSION}"
+# AtomVM ECDSA sign/verify needs Mbed TLS > 3.6.1 (`mbedtls_ecdsa_raw_to_der`).
+# Match AtomVM's FetchMbedTLS.cmake tag; Ubuntu apt is still 2.28.x.
+MBEDTLS_VERSION="${MBEDTLS_VERSION:-v3.6.3.1}"
+MBEDTLS_PREFIX="${MBEDTLS_PREFIX:-$ATOMVM_CACHE/mbedtls}"
 
 TESTS_AVM="${TESTS_AVM:-$ROOT/build/tests.avm}"
 PACKBEAM_BIN="${PACKBEAM_BIN:-$ATOMVM_CACHE/bin/packbeam}"
@@ -15,6 +19,15 @@ ESPRESSIF_QEMU_VER="${ESPRESSIF_QEMU_VER:-esp-develop-9.2.2-20260417}"
 ESPRESSIF_QEMU_BUILD="${ESPRESSIF_QEMU_BUILD:-esp_develop_9.2.2_20260417}"
 
 mkdir -p "$ATOMVM_CACHE/bin" "$ATOMVM_CACHE/unix" "$ATOMVM_CACHE/wasm" "$ATOMVM_CACHE/esp32" "$ATOMVM_CACHE/pico" "$ATOMVM_CACHE/libs" "$ATOMVM_CACHE/qemu"
+
+# Shared libs from $MBEDTLS_PREFIX so a unix AtomVM linked against them can run.
+export_mbedtls_lib_path() {
+  if [[ ! -d "$MBEDTLS_PREFIX/lib" ]]; then
+    return 0
+  fi
+  export LD_LIBRARY_PATH="$MBEDTLS_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  export DYLD_LIBRARY_PATH="$MBEDTLS_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+}
 
 download() {
   local url="$1"

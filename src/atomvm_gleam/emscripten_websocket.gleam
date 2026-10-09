@@ -9,7 +9,7 @@
 //// `emscripten_websocket` to avoid clashing with the ESP client module.
 ////
 //// Source:
-//// [`libs/avm_emscripten/src/websocket.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/websocket.erl).
+//// [`libs/avm_emscripten/src/websocket.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/websocket.erl#L1).
 //// Docs:
 //// [Module websocket](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/websocket.html).
 ////

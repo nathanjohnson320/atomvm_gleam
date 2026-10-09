@@ -1,6 +1,6 @@
 //// ESP32 digital-to-analog converter (DAC) oneshot channel APIs.
 ////
-//// Source: [`libs/avm_esp32/src/esp_dac.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
+//// Source: [`libs/avm_esp32/src/esp_dac.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl#L1).
 ////
 //// ESP32 classic has two 8-bit DAC channels (`chan_id` `0` and `1`). Create a
 //// oneshot channel, write a level with [`oneshot_output_voltage`](#oneshot_output_voltage),
@@ -52,7 +52,7 @@ pub fn error_to_string(error: Error) -> String {
 /// Allocate a DAC channel. Pass [`Oneshot`](#Mode) and
 /// [`OneshotOptions`](#OneshotOptions) with `chan_id` `0` or `1`.
 ///
-/// See [`esp_dac:new_channel/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
+/// See [`esp_dac:new_channel/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl#L33).
 pub fn new_channel(
   mode: Mode,
   options: OneshotOptions,
@@ -66,7 +66,7 @@ pub fn new_channel(
 /// Set the oneshot output voltage level (`0..255`) on a channel from
 /// [`new_channel`](#new_channel).
 ///
-/// See [`esp_dac:oneshot_output_voltage/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
+/// See [`esp_dac:oneshot_output_voltage/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl#L45).
 @external(erlang, "atomvm_gleam_esp_dac_ffi", "oneshot_output_voltage")
 pub fn oneshot_output_voltage(
   channel: Channel,
@@ -75,7 +75,7 @@ pub fn oneshot_output_voltage(
 
 /// Delete a oneshot DAC channel and release its resource.
 ///
-/// See [`esp_dac:oneshot_del_channel/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl).
+/// See [`esp_dac:oneshot_del_channel/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_dac.erl#L50).
 @external(erlang, "atomvm_gleam_esp_dac_ffi", "oneshot_del_channel")
 pub fn oneshot_del_channel(channel: Channel) -> Result(Nil, Error)
 

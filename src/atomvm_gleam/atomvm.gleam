@@ -3,7 +3,7 @@
 /// See [Module atomvm](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/atomvm.html).
 ///
 /// Upstream source:
-/// [atomvm.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/atomvm.erl).
+/// [atomvm.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/atomvm.erl#L1).
 ///
 /// Note: AtomVM's `rand_bytes/1` is deprecated in favor of
 /// `crypto:strong_rand_bytes/1`. Prefer a crypto wrapper when available; this
@@ -511,6 +511,6 @@ pub fn posix_tcflush(
 ///
 /// Exported on AtomVM 0.7 (`get_creation/0`); marked hidden in upstream edoc.
 ///
-/// See [`atomvm:get_creation/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/atomvm.erl).
+/// See [`atomvm:get_creation/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/atomvm.erl#L646).
 @external(erlang, "atomvm", "get_creation")
 pub fn get_creation() -> Int

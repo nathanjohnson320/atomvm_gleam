@@ -8,9 +8,9 @@
 ///   [`open_default`](#open_default).
 ///
 /// Upstream (same export shape on each platform):
-/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl),
-/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl),
-/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl).
+/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl#L1),
+/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl#L1),
+/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl#L1).
 /// Implements the
 /// [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html)
 /// behaviour over USB CDC.
@@ -57,9 +57,9 @@ pub fn default_config() -> Config {
 /// On RP2 and STM32 the name is ignored (single CDC interface).
 ///
 /// See `usb_cdc:open/2` on
-/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl),
-/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl),
-/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl).
+/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl#L57),
+/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl#L56),
+/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl#L54).
 pub fn open(name: String, _config: Config) -> Result(UsbCdc, Error) {
   open_ffi(name)
 }
@@ -70,9 +70,9 @@ pub fn open(name: String, _config: Config) -> Result(UsbCdc, Error) {
 /// On RP2 / STM32 this opens the single CDC interface.
 ///
 /// See `usb_cdc:open/1` on
-/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl),
-/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl),
-/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl).
+/// [ESP32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/usb_cdc.erl#L68),
+/// [RP2](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/usb_cdc.erl#L67),
+/// [STM32](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_stm32/src/usb_cdc.erl#L65).
 pub fn open_default(_config: Config) -> Result(UsbCdc, Error) {
   open_default_ffi()
 }

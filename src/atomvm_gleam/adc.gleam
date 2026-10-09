@@ -1,6 +1,6 @@
 //// Analog to digital conversion on the ESP32 family.
 ////
-//// [Module esp_adc](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl)
+//// [Module esp_adc](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L1)
 //// has two APIs, and an application uses one of them. `init`, `acquire`, and
 //// `sample` take resource handles. `start_pin`, `read`, and `stop` go through
 //// a gen_server that owns those handles itself.
@@ -12,12 +12,12 @@ import gleam/result
 
 /// Opaque ADC unit handle from `init`.
 ///
-/// See [adc_rsrc()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [adc_rsrc()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L65).
 pub type Unit
 
 /// Opaque ADC channel handle from `acquire`.
 ///
-/// See [adc_rsrc()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [adc_rsrc()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L65).
 pub type Channel
 
 /// Errors from the AtomVM ADC driver.
@@ -26,7 +26,7 @@ pub type Channel
 /// `Error(Timeout)`). Bare AtomVM `error` becomes `Failed`. Anything else
 /// lands in `Other` as a string because AtomVM types reasons as open `term()`.
 ///
-/// See [Module esp_adc](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [Module esp_adc](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L1).
 pub type Error {
   Failed
   NotSupported
@@ -37,7 +37,7 @@ pub type Error {
 
 /// Sample resolution. `BitMax` selects the widest width the chip supports.
 ///
-/// See [bit_width()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [bit_width()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L68).
 pub type BitWidth {
   Bit9
   Bit10
@@ -51,7 +51,7 @@ pub type BitWidth {
 /// default used by `acquire_default` and `start_pin`. `Db2Point5` is the
 /// Erlang atom `db_2_5`.
 ///
-/// See [attenuation()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [attenuation()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L71).
 pub type Attenuation {
   Db0
   Db2Point5
@@ -63,7 +63,7 @@ pub type Attenuation {
 /// One ADC reading. `None` means that field was not requested (`undefined`
 /// from AtomVM).
 ///
-/// See [reading()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [reading()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L101).
 pub type Reading {
   Reading(raw: Option(Int), millivolts: Option(Int))
 }
@@ -74,7 +74,7 @@ pub type Reading {
 /// conversions to average. The short arities (`sample`, `read`) use both
 /// fields and 64 samples.
 ///
-/// See [read_option()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [read_option()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L91).
 pub type SampleOptions {
   SampleOptions(raw: Bool, voltage: Bool, samples: Int)
 }
@@ -96,7 +96,7 @@ pub fn error_to_string(error: Error) -> String {
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:init/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:init/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L118).
 @external(erlang, "atomvm_gleam_adc_ffi", "init")
 pub fn init() -> Result(Unit, Error)
 
@@ -105,7 +105,7 @@ pub fn init() -> Result(Unit, Error)
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:deinit/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:deinit/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L135).
 @external(erlang, "atomvm_gleam_adc_ffi", "deinit")
 pub fn deinit(unit: Unit) -> Result(Nil, Error)
 
@@ -114,7 +114,7 @@ pub fn deinit(unit: Unit) -> Result(Nil, Error)
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:acquire/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:acquire/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L187).
 pub fn acquire(
   pin: Int,
   unit: Unit,
@@ -142,7 +142,7 @@ fn acquire_ffi(
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:acquire/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:acquire/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L152).
 @external(erlang, "atomvm_gleam_adc_ffi", "acquire_default")
 pub fn acquire_default(pin: Int, unit: Unit) -> Result(Channel, Error)
 
@@ -151,7 +151,7 @@ pub fn acquire_default(pin: Int, unit: Unit) -> Result(Channel, Error)
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:release_channel/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:release_channel/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L205).
 @external(erlang, "atomvm_gleam_adc_ffi", "release_channel")
 pub fn release_channel(channel: Channel) -> Result(Nil, Error)
 
@@ -161,7 +161,7 @@ pub fn release_channel(channel: Channel) -> Result(Nil, Error)
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:sample/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:sample/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L220).
 pub fn sample(channel: Channel, unit: Unit) -> Result(Reading, Error) {
   result.map(sample_ffi(channel, unit), to_reading)
 }
@@ -177,7 +177,7 @@ fn sample_ffi(
 /// This is a resource function. It cannot be used in an application that
 /// calls `start`, `start_pin`, `read`, or `stop`.
 ///
-/// See [`esp_adc:sample/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:sample/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L258).
 pub fn sample_with(
   channel: Channel,
   unit: Unit,
@@ -202,7 +202,7 @@ fn sample_with_ffi(
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L275).
 @external(erlang, "atomvm_gleam_adc_ffi", "start")
 pub fn start() -> Result(Pid, Error)
 
@@ -211,7 +211,7 @@ pub fn start() -> Result(Pid, Error)
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:start/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:start/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L294).
 @external(erlang, "atomvm_gleam_adc_ffi", "start_pin")
 pub fn start_pin(pin: Int) -> Result(Nil, Error)
 
@@ -221,7 +221,7 @@ pub fn start_pin(pin: Int) -> Result(Nil, Error)
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:start/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:start/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L313).
 pub fn start_pin_with(
   pin: Int,
   bit_width: BitWidth,
@@ -247,7 +247,7 @@ fn start_pin_with_ffi(
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:read/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:read/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L367).
 pub fn read(pin: Int) -> Result(Reading, Error) {
   result.map(read_ffi(pin), to_reading)
 }
@@ -261,7 +261,7 @@ fn read_ffi(pin: Int) -> Result(#(Option(Int), Option(Int)), Error)
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L402).
 pub fn read_with(pin: Int, options: SampleOptions) -> Result(Reading, Error) {
   let SampleOptions(raw:, voltage:, samples:) = options
   result.map(read_with_ffi(pin, raw, voltage, samples), to_reading)
@@ -280,7 +280,7 @@ fn read_with_ffi(
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:stop/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:stop/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L331).
 @external(erlang, "atomvm_gleam_adc_ffi", "stop_pin")
 pub fn stop_pin(pin: Int) -> Result(Nil, Error)
 
@@ -289,7 +289,7 @@ pub fn stop_pin(pin: Int) -> Result(Nil, Error)
 /// This is a convenience function. It cannot be used in an application that
 /// calls `init`, `acquire`, or `sample`.
 ///
-/// See [`esp_adc:stop/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl).
+/// See [`esp_adc:stop/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/esp_adc.erl#L350).
 @external(erlang, "atomvm_gleam_adc_ffi", "stop")
 pub fn stop() -> Result(Nil, Error)
 

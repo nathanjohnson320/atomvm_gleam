@@ -2,7 +2,7 @@
 ////
 //// Writes are not suffixed with a newline unless the caller includes one.
 ////
-//// Upstream: [`console.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl)
+//// Upstream: [`console.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl#L1)
 //// · Docs: [Module console](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/console.html)
 
 /// Opaque handle for the AtomVM console port (`console:start/0`).
@@ -36,7 +36,7 @@ pub fn error_to_string(error: Error) -> String {
 /// demand - but useful for eager initialization or for
 /// [`puts_to`](#puts_to) / [`flush_handle`](#flush_handle).
 ///
-/// See [`console:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl).
+/// See [`console:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl#L101).
 @external(erlang, "atomvm_gleam_console_ffi", "start")
 pub fn start() -> Result(Console, Error)
 
@@ -48,7 +48,7 @@ pub fn puts(text: String) -> Result(Nil, Error)
 
 /// Write a string via an existing console port handle.
 ///
-/// See [`console:puts/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl).
+/// See [`console:puts/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl#L46).
 @external(erlang, "atomvm_gleam_console_ffi", "puts_to")
 pub fn puts_to(console: Console, text: String) -> Result(Nil, Error)
 
@@ -66,7 +66,7 @@ pub fn flush() -> Result(Nil, Error)
 
 /// Flush previously written data via an existing console port handle.
 ///
-/// See [`console:flush/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl).
+/// See [`console:flush/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/console.erl#L61).
 @external(erlang, "atomvm_gleam_console_ffi", "flush_handle")
 pub fn flush_handle(console: Console) -> Result(Nil, Error)
 

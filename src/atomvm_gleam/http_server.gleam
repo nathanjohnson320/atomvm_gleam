@@ -1,6 +1,6 @@
 /// Thin Gleam wrappers for AtomVM `http_server` (0.7).
 ///
-/// Source / docs: [`http_server.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// Source / docs: [`http_server.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl#L1).
 /// There is no release-0.7 Sphinx/edoc page; prefer GitHub over `/latest/.../eavmlib`.
 ///
 /// ## Router callback expectations
@@ -77,14 +77,14 @@ pub fn route(path: String, module: Atom) -> Route {
 /// Returns the accept-loop pid. On listen failure upstream prints the error and
 /// this wrapper maps a non-pid result to [`Failed`](#Error).
 ///
-/// See [`http_server:start_server/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// See [`http_server:start_server/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl#L25).
 pub fn start_server(port: Int, routes: List(Route)) -> Result(Pid, Error) {
   start_server_ffi(port, routes)
 }
 
 /// Reply with status and body, default HTML headers, then close the socket.
 ///
-/// See [`http_server:reply/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// See [`http_server:reply/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl#L75).
 @external(erlang, "atomvm_gleam_http_server_ffi", "reply")
 pub fn reply(
   status_code: Int,
@@ -96,7 +96,7 @@ pub fn reply(
 ///
 /// Does not close the socket by itself (unlike [`reply`](#reply)).
 ///
-/// See [`http_server:reply/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// See [`http_server:reply/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl#L88).
 @external(erlang, "atomvm_gleam_http_server_ffi", "reply")
 pub fn reply_with_headers(
   status_code: Int,
@@ -107,7 +107,7 @@ pub fn reply_with_headers(
 
 /// Parse an `application/x-www-form-urlencoded` query string into key/value pairs.
 ///
-/// See [`http_server:parse_query_string/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// See [`http_server:parse_query_string/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl#L129).
 @external(erlang, "atomvm_gleam_http_server_ffi", "parse_query_string")
 pub fn parse_query_string(
   query: String,

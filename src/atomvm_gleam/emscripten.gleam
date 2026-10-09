@@ -46,7 +46,7 @@
 //// touchend, touchmove, touchcancel.
 ////
 //// Upstream:
-//// [`libs/avm_emscripten/src/emscripten.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/emscripten.erl)
+//// [`libs/avm_emscripten/src/emscripten.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_emscripten/src/emscripten.erl#L1)
 //// · Docs:
 //// [Module emscripten](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html)
 

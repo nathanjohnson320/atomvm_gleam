@@ -9,7 +9,7 @@
 /// [`sta_status`](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-status), and
 /// [SNTP](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sntp-support).
 ///
-/// Source: [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl).
+/// Source: [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl#L1).
 ///
 /// mDNS here is **config plumbing** on `network:start/1` /
 /// `network:start_link/1` only (`{mdns, [{host, …}, {ttl, …}]}`).
@@ -132,7 +132,7 @@ pub fn sta_status_to_string(status: StaStatus) -> String {
 ///
 /// Compatibility wrapper around [`start_with`](#start_with) with no AP or mDNS.
 ///
-/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl)
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl#L1)
 /// and the [0.7 guide](https://doc.atomvm.org/release-0.7/network-programming-guide.html).
 pub fn start(sta: StaConfig, sntp: Option(SntpConfig)) -> Result(Nil, Error) {
   start_with(option.Some(sta), option.None, sntp, option.None)
@@ -143,7 +143,7 @@ pub fn start(sta: StaConfig, sntp: Option(SntpConfig)) -> Result(Nil, Error) {
 /// Same config as [`start`](#start), but the network gen_server is linked to
 /// the caller (`network:start_link/1`).
 ///
-/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl)
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl#L1)
 /// and the [0.7 guide](https://doc.atomvm.org/release-0.7/network-programming-guide.html).
 pub fn start_link(
   sta: StaConfig,
@@ -172,7 +172,7 @@ pub fn start_with(
 /// Same config as [`start_with`](#start_with), but linked to the caller
 /// (`network:start_link/1`).
 ///
-/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl).
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl#L1).
 pub fn start_link_with(
   sta: Option(StaConfig),
   ap: Option(ApConfig),

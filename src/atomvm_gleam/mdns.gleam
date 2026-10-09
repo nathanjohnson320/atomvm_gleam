@@ -8,7 +8,7 @@
 /// the gen_server lifecycle (`start_link` / `stop`) and do not wrap
 /// callbacks.
 ///
-/// Source: [`mdns.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// Source: [`mdns.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L1).
 import gleam/option.{type Option}
 
 /// Opaque handle for a running mDNS gen_server (`pid()` from `mdns:start_link/1`).
@@ -34,7 +34,7 @@ pub type Ipv4Address {
 /// - `interface` - IPv4 address of the interface to advertise (required)
 /// - `ttl` - DNS TTL in seconds; omit for the upstream default (900)
 ///
-/// See [`mdns:start_link/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:start_link/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L52).
 pub type Config {
   Config(hostname: String, interface: Ipv4Address, ttl: Option(Int))
 }
@@ -95,7 +95,7 @@ pub fn error_to_string(error: Error) -> String {
 
 /// Start an mDNS responder and resolve `hostname.local` on `interface`.
 ///
-/// See [`mdns:start_link/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:start_link/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L52).
 pub fn start_link(config: Config) -> Result(Server, Error) {
   let Config(hostname:, interface:, ttl:) = config
   let Ipv4Address(a:, b:, c:, d:) = interface
@@ -104,7 +104,7 @@ pub fn start_link(config: Config) -> Result(Server, Error) {
 
 /// Stop an mDNS responder started with [`start_link`](#start_link).
 ///
-/// See [`mdns:stop/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:stop/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L58).
 @external(erlang, "atomvm_gleam_mdns_ffi", "stop")
 pub fn stop(server: Server) -> Result(Nil, Error)
 
@@ -112,7 +112,7 @@ pub fn stop(server: Server) -> Result(Nil, Error)
 ///
 /// Protocol helper; not part of the responder lifecycle.
 ///
-/// See [`mdns:parse_dns_message/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:parse_dns_message/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L191).
 @external(erlang, "atomvm_gleam_mdns_ffi", "parse_dns_message")
 pub fn parse_dns_message(message: BitArray) -> Result(DnsMessage, Error)
 
@@ -120,7 +120,7 @@ pub fn parse_dns_message(message: BitArray) -> Result(DnsMessage, Error)
 ///
 /// Protocol helper; not part of the responder lifecycle.
 ///
-/// See [`mdns:serialize_dns_message/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:serialize_dns_message/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L323).
 @external(erlang, "atomvm_gleam_mdns_ffi", "serialize_dns_message")
 pub fn serialize_dns_message(message: DnsMessage) -> Result(BitArray, Error)
 
@@ -129,7 +129,7 @@ pub fn serialize_dns_message(message: DnsMessage) -> Result(BitArray, Error)
 ///
 /// Protocol helper; not part of the responder lifecycle.
 ///
-/// See [`mdns:parse_dns_name/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:parse_dns_name/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L238).
 @external(erlang, "atomvm_gleam_mdns_ffi", "parse_dns_name")
 pub fn parse_dns_name(
   message: BitArray,
@@ -140,7 +140,7 @@ pub fn parse_dns_name(
 ///
 /// Protocol helper; not part of the responder lifecycle.
 ///
-/// See [`mdns:serialize_dns_name/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
+/// See [`mdns:serialize_dns_name/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl#L355).
 @external(erlang, "atomvm_gleam_mdns_ffi", "serialize_dns_name")
 pub fn serialize_dns_name(name: List(BitArray)) -> Result(BitArray, Error)
 

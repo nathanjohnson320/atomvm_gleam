@@ -27,7 +27,7 @@ pub type Error {
 /// wired, which is how the SK6812 chain marks its missing clock.
 ///
 /// See [`bus_config`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/spi_hal.html)
-/// and [`spi.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// and [`spi.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L1).
 pub type BusConfig {
   BusConfig(
     peripheral: Option(String),
@@ -88,7 +88,7 @@ pub fn error_to_string(error: Error) -> String {
 /// Open an SPI bus. Pass `device_config: []` when AtomGL owns the device
 /// (as on the badge display).
 ///
-/// See [`spi:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L165).
 pub fn open(params: Params) -> Result(Spi, Error) {
   let Params(bus_config:, device_config:) = params
   let BusConfig(peripheral:, sclk:, mosi:, miso:, pico:, poci:) = bus_config
@@ -108,13 +108,13 @@ fn open_ffi(
 
 /// Close the SPI driver and free its resources.
 ///
-/// See [`spi:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L178).
 @external(erlang, "atomvm_gleam_spi_ffi", "close")
 pub fn close(spi: Spi) -> Result(Nil, Error)
 
 /// Read a value from an address on a named device.
 ///
-/// See [`spi:read_at/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:read_at/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L195).
 @external(erlang, "atomvm_gleam_spi_ffi", "read_at")
 pub fn read_at(
   spi: Spi,
@@ -125,7 +125,7 @@ pub fn read_at(
 
 /// Write a value to an address on a named device.
 ///
-/// See [`spi:write_at/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:write_at/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L220).
 @external(erlang, "atomvm_gleam_spi_ffi", "write_at")
 pub fn write_at(
   spi: Spi,
@@ -137,7 +137,7 @@ pub fn write_at(
 
 /// Write using a transaction map.
 ///
-/// See [`spi:write/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:write/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L247).
 pub fn write(
   spi: Spi,
   device_name: String,
@@ -155,7 +155,7 @@ fn write_ffi(
 
 /// Write and simultaneously read using a transaction map.
 ///
-/// See [`spi:write_read/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl).
+/// See [`spi:write_read/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/spi.erl#L282).
 pub fn write_read(
   spi: Spi,
   device_name: String,

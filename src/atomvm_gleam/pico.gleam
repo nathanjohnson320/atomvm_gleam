@@ -3,8 +3,8 @@
 //// CYW43 GPIO helpers are **Pico-W only**. The onboard LED is typically
 //// CYW43 GPIO `0`.
 ////
-//// Source: [`libs/avm_rp2/src/pico.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
-//// Docs: [Module pico](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+//// Source: [`libs/avm_rp2/src/pico.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl#L1).
+//// Docs: [Module pico](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl#L1).
 
 /// Errors from Pico NIFs and helpers.
 ///
@@ -56,20 +56,20 @@ pub fn error_to_string(error: Error) -> String {
 
 /// Read a CYW43 GPIO pin (`0..2`). Pico-W only. Returns `0` or `1`.
 ///
-/// See [`pico:cyw43_arch_gpio_get/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+/// See [`pico:cyw43_arch_gpio_get/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl#L52).
 @external(erlang, "atomvm_gleam_pico_ffi", "cyw43_arch_gpio_get")
 pub fn cyw43_arch_gpio_get(gpio: Int) -> Result(Int, Error)
 
 /// Write a CYW43 GPIO pin (`0..2`). Pico-W only. Typically drives the onboard LED (GPIO `0`).
 ///
-/// See [`pico:cyw43_arch_gpio_put/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+/// See [`pico:cyw43_arch_gpio_put/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl#L64).
 pub fn cyw43_arch_gpio_put(gpio: Int, level: Level) -> Result(Nil, Error) {
   cyw43_arch_gpio_put_ffi(gpio, level)
 }
 
 /// Set the RTC clock from a `calendar:datetime()`-shaped value.
 ///
-/// See [`pico:rtc_set_datetime/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+/// See [`pico:rtc_set_datetime/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl#L41).
 pub fn rtc_set_datetime(datetime: DateTime) -> Result(Nil, Error) {
   let DateTime(date:, time:) = datetime
   let Date(year:, month:, day:) = date

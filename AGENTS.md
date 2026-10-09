@@ -35,6 +35,9 @@ pub type Error {
 - Use `@external(erlang, "atomvm_gleam_<module>_ffi", "<fun>")` for FFI.
 - Prefer small Gleam wrappers that unpack config records, then call FFI.
 - Document each public fn with a short `///` blurb and upstream link.
+  Prefer `release-0.7` edoc anchors when that page exists. When linking
+  GitHub `libs/.../*.erl` sources (no edoc yet), always include a `#L`
+  line anchor to the type or function - never a bare file URL.
 - Match existing constructor casing (`PinHigh`/`PinLow`, `EspRstSw`, …).
 
 ## FFI style

@@ -1,8 +1,8 @@
 //// Typed Gleam wrappers for AtomVM GPIO.
 ////
-//// ESP32 source: [`libs/avm_esp32/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
-//// RP2 source: [`libs/avm_rp2/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
-//// UNIX source: [`libs/avm_unix/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
+//// ESP32 source: [`libs/avm_esp32/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L1).
+//// RP2 source: [`libs/avm_rp2/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L1).
+//// UNIX source: [`libs/avm_unix/src/gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl#L1).
 //// Edoc: [`gpio_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/gpio_hal.html).
 ////
 //// On Pico-W, the onboard LED is the wireless-bank pin `WlPin(0)` (Erlang
@@ -13,9 +13,9 @@ import gleam/erlang/process.{type Pid}
 
 /// Opaque handle for the AtomVM GPIO driver port (`gpio:open/0` / `gpio:start/0`).
 ///
-/// See ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl),
-/// RP2 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl),
-/// UNIX [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
+/// See ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L1),
+/// RP2 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L1),
+/// UNIX [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl#L1).
 pub type Gpio
 
 /// Errors from the AtomVM gpio driver.
@@ -24,9 +24,9 @@ pub type Gpio
 /// `Error(NotSupported)`). Bare AtomVM `error` becomes `Failed`. Anything else
 /// lands in `Other` as a string because AtomVM types reasons as open `atom()`.
 ///
-/// See ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl),
-/// RP2 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl),
-/// UNIX [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
+/// See ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L1),
+/// RP2 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L1),
+/// UNIX [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl#L1).
 pub type Error {
   Failed
   NotSupported
@@ -129,7 +129,7 @@ pub type Pull {
 /// matching Pico SDK `gpio_function_t`: `spi`, `uart`, `i2c`, `pwm`, `sio`,
 /// `pio0`, `pio1`.
 ///
-/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L257).
 pub type GpioFunction {
   Spi
   Uart
@@ -153,31 +153,31 @@ pub fn error_to_string(error: Error) -> String {
 
 /// Start the GPIO driver port. Fails if it is already running.
 ///
-/// See [`gpio:open/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:open/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L104).
 @external(erlang, "atomvm_gleam_gpio_ffi", "open")
 pub fn open() -> Result(Gpio, Error)
 
 /// Start the GPIO driver port, or return the existing one.
 ///
-/// See [`gpio:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:start/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L84).
 @external(erlang, "atomvm_gleam_gpio_ffi", "start")
 pub fn start() -> Result(Gpio, Error)
 
 /// Stop the GPIO interrupt port and free its resources.
 ///
-/// See [`gpio:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L117).
 @external(erlang, "atomvm_gleam_gpio_ffi", "close")
 pub fn close(gpio: Gpio) -> Result(Nil, Error)
 
 /// Stop the GPIO interrupt port (no handle required).
 ///
-/// See [`gpio:stop/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:stop/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L129).
 @external(erlang, "atomvm_gleam_gpio_ffi", "stop")
 pub fn stop() -> Result(Nil, Error)
 
 /// Set the operational mode of a pin (`input`, `output`, or `output_od`).
 ///
-/// See [`gpio:set_direction/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_direction/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L163).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_direction")
 pub fn set_direction(
   gpio: Gpio,
@@ -187,25 +187,25 @@ pub fn set_direction(
 
 /// Set GPIO digital output level via the port API.
 ///
-/// See [`gpio:set_level/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_level/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L178).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_level")
 pub fn set_level(gpio: Gpio, pin: Pin, level: Level) -> Result(Nil, Error)
 
 /// Read the digital state of a pin via the port API.
 ///
-/// See [`gpio:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L149).
 @external(erlang, "atomvm_gleam_gpio_ffi", "read")
 pub fn read(gpio: Gpio, pin: Pin) -> Result(Level, Error)
 
 /// Set a GPIO interrupt. Delivers `{gpio_interrupt, Pin}` to the caller.
 ///
-/// See [`gpio:set_int/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_int/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L197).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_int")
 pub fn set_int(gpio: Gpio, pin: Pin, trigger: Trigger) -> Result(Nil, Error)
 
 /// Set a GPIO interrupt, delivering `{gpio_interrupt, Pin}` to `pid`.
 ///
-/// See [`gpio:set_int/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_int/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L218).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_int_to")
 pub fn set_int_to(
   gpio: Gpio,
@@ -216,52 +216,52 @@ pub fn set_int_to(
 
 /// Remove a GPIO interrupt.
 ///
-/// See [`gpio:remove_int/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:remove_int/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L232).
 @external(erlang, "atomvm_gleam_gpio_ffi", "remove_int")
 pub fn remove_int(gpio: Gpio, pin: Pin) -> Result(Nil, Error)
 
 /// Convenience for `set_int/3` using only pin and trigger.
 /// Prefer `set_int` when arming more than one pin.
 ///
-/// See [`gpio:attach_interrupt/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:attach_interrupt/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L404).
 @external(erlang, "atomvm_gleam_gpio_ffi", "attach_interrupt")
 pub fn attach_interrupt(pin: Pin, trigger: Trigger) -> Result(Nil, Error)
 
 /// Convenience for `remove_int/2` using only the pin.
 ///
-/// See [`gpio:detach_interrupt/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:detach_interrupt/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L421).
 @external(erlang, "atomvm_gleam_gpio_ffi", "detach_interrupt")
 pub fn detach_interrupt(pin: Pin) -> Result(Nil, Error)
 
 /// Initialize a pin for GPIO use (required on RP2040; some ESP32 pins).
 ///
-/// See [`gpio:init/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl)
-/// and ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:init/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L233)
+/// and ESP32 [`gpio.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L1).
 @external(erlang, "atomvm_gleam_gpio_ffi", "init")
 pub fn init(pin: Pin) -> Result(Nil, Error)
 
 /// Reset a pin back to the NULL function (RP2040).
 ///
-/// See [`gpio:deinit/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+/// See [`gpio:deinit/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L243).
 @external(erlang, "atomvm_gleam_gpio_ffi", "deinit")
 pub fn deinit(pin: Pin) -> Result(Nil, Error)
 
 /// Select the function for a GPIO pin (RP2 / Pico SDK `gpio_set_function`).
 /// Takes a numeric pin only; wireless-bank pins are not supported by upstream.
 ///
-/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+/// See [`gpio:set_function/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl#L257).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_function")
 pub fn set_function(pin: Int, function: GpioFunction) -> Result(Nil, Error)
 
 /// Set pin mode without a port handle (NIF-style API).
 ///
-/// See [`gpio:set_pin_mode/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_pin_mode/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L266).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_pin_mode")
 pub fn set_pin_mode(pin: Pin, direction: Direction) -> Result(Nil, Error)
 
 /// Set the internal resistor of a pin (not used on STM32).
 ///
-/// See [`gpio:set_pin_pull/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:set_pin_pull/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L281).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_pin_pull")
 pub fn set_pin_pull(pin: Pin, pull: Pull) -> Result(Nil, Error)
 
@@ -269,7 +269,7 @@ pub fn set_pin_pull(pin: Pin, pull: Pull) -> Result(Nil, Error)
 ///
 /// On Pico-W, VBUS detect is readable as `wl(2)` without prior mode/pull setup.
 ///
-/// See [`gpio:digital_read/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:digital_read/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L384).
 @external(erlang, "atomvm_gleam_gpio_ffi", "digital_read")
 pub fn digital_read(pin: Pin) -> Result(Level, Error)
 
@@ -279,37 +279,37 @@ pub fn digital_read(pin: Pin) -> Result(Level, Error)
 /// `set_pin_mode` or `set_pin_pull` before use. The `pico` module CYW43 helpers
 /// are an alternate API for the same LED.
 ///
-/// See [`gpio:digital_write/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:digital_write/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L370).
 @external(erlang, "atomvm_gleam_gpio_ffi", "digital_write")
 pub fn digital_write(pin: Pin, level: Level) -> Result(Nil, Error)
 
 /// Hold the state of a pin (ESP32).
 ///
-/// See [`gpio:hold_en/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:hold_en/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L305).
 @external(erlang, "atomvm_gleam_gpio_ffi", "hold_en")
 pub fn hold_en(pin: Pin) -> Result(Nil, Error)
 
 /// Release a pin from a hold state (ESP32).
 ///
-/// See [`gpio:hold_dis/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:hold_dis/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L325).
 @external(erlang, "atomvm_gleam_gpio_ffi", "hold_dis")
 pub fn hold_dis(pin: Pin) -> Result(Nil, Error)
 
 /// Enable all hold functions to continue in deep sleep (ESP32).
 ///
-/// See [`gpio:deep_sleep_hold_en/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:deep_sleep_hold_en/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L348).
 @external(erlang, "atomvm_gleam_gpio_ffi", "deep_sleep_hold_en")
 pub fn deep_sleep_hold_en() -> Result(Nil, Error)
 
 /// Disable all gpio pad hold functions during deep sleep (ESP32).
 ///
-/// See [`gpio:deep_sleep_hold_dis/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:deep_sleep_hold_dis/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L357).
 @external(erlang, "atomvm_gleam_gpio_ffi", "deep_sleep_hold_dis")
 pub fn deep_sleep_hold_dis() -> Result(Nil, Error)
 
 /// Configure a GPIO as a light-sleep wakeup pin (ESP32).
 ///
-/// See [`gpio:wakeup_enable/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl).
+/// See [`gpio:wakeup_enable/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/gpio.erl#L432).
 @external(erlang, "atomvm_gleam_gpio_ffi", "wakeup_enable")
 pub fn wakeup_enable(pin: Pin, level: Level) -> Result(Nil, Error)
 
@@ -318,6 +318,6 @@ pub fn wakeup_enable(pin: Pin, level: Level) -> Result(Nil, Error)
 /// Defaults to `/sys/class/gpio`. Useful for tests that stub a sysfs tree.
 /// Not available on ESP32 / RP2 / STM32 builds.
 ///
-/// See [`gpio:set_sysfs_base/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl).
+/// See [`gpio:set_sysfs_base/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_unix/src/gpio.erl#L126).
 @external(erlang, "atomvm_gleam_gpio_ffi", "set_sysfs_base")
 pub fn set_sysfs_base(dir: String) -> Result(Nil, Error)

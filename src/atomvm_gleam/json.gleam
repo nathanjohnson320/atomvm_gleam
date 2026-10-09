@@ -1,6 +1,6 @@
 /// Wrappers for AtomVM's OTP-compatible `json` module.
 ///
-/// Source: [`json.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/json.erl).
+/// Source: [`json.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/json.erl#L1).
 /// Docs: [Module json](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/json.html).
 ///
 /// Decode returns Erlang terms (maps, lists, binaries, numbers, booleans,

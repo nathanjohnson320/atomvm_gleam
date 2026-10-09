@@ -1,6 +1,6 @@
 /// Thin wrappers for AtomVM `:ssl` client sockets.
 ///
-/// Source: [`ssl.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/ssl.erl).
+/// Source: [`ssl.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/ssl.erl#L1).
 /// Docs: [Module ssl](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/ssl.html).
 ///
 /// For HTTPS, prefer [`atomvm_gleam/http`](atomvm_gleam/http.html) after calling

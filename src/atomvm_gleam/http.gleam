@@ -1,6 +1,6 @@
 /// HTTP(S) client wrappers around AtomVM `ahttp_client`.
 ///
-/// Source / docs: [`ahttp_client.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl)
+/// Source / docs: [`ahttp_client.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L1)
 /// (no release-0.7 Sphinx/edoc page; prefer GitHub over `/latest/.../eavmlib`).
 ///
 /// Call [`atomvm_gleam/ssl.start`](atomvm_gleam/ssl.html#start) before HTTPS.
@@ -106,7 +106,7 @@ pub fn error_to_string(error: Error) -> String {
 
 /// Connect to an HTTP(S) server.
 ///
-/// See [`ahttp_client:connect/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:connect/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L112).
 @external(erlang, "atomvm_gleam_http_ffi", "connect")
 pub fn connect(
   protocol: Protocol,
@@ -121,7 +121,7 @@ pub fn connect(
 /// Pass [`Empty`](#Body) for no body, [`Bytes`](#Body) for an inline payload, or
 /// [`Stream`](#Body) to upload with [`stream_request_body`](#stream_request_body).
 ///
-/// See [`ahttp_client:request/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:request/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L176).
 @external(erlang, "atomvm_gleam_http_ffi", "request")
 pub fn request(
   conn: Connection,
@@ -138,7 +138,7 @@ pub fn request(
 /// Parser failures (line too long, incomplete response, invalid chunk size,
 /// …) map to [`Error`](#Error) / [`Other`](#Error).
 ///
-/// See [`ahttp_client:stream/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:stream/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L277).
 @external(erlang, "atomvm_gleam_http_ffi", "stream")
 pub fn stream(conn: Connection, message: message) -> Result(StreamEvent, Error)
 
@@ -147,7 +147,7 @@ pub fn stream(conn: Connection, message: message) -> Result(StreamEvent, Error)
 /// Only valid after [`request`](#request) with [`Stream`](#Body). `ref` must be
 /// the reference from that request.
 ///
-/// See [`ahttp_client:stream_request_body/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:stream_request_body/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L612).
 @external(erlang, "atomvm_gleam_http_ffi", "stream_request_body")
 pub fn stream_request_body(
   conn: Connection,
@@ -157,7 +157,7 @@ pub fn stream_request_body(
 
 /// Receive and parse up to `len` bytes (`0` = all pending).
 ///
-/// See [`ahttp_client:recv/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:recv/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L644).
 @external(erlang, "atomvm_gleam_http_ffi", "recv")
 pub fn recv(
   conn: Connection,
@@ -166,6 +166,6 @@ pub fn recv(
 
 /// Close the connection.
 ///
-/// See [`ahttp_client:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl).
+/// See [`ahttp_client:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/ahttp_client.erl#L671).
 @external(erlang, "atomvm_gleam_http_ffi", "close")
 pub fn close(conn: Connection) -> Result(Nil, Error)

@@ -1,6 +1,6 @@
 /// Typed Gleam wrappers for AtomVM 0.7 `:crypto` (estdlib).
 ///
-/// Source: [`crypto.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/crypto.erl).
+/// Source: [`crypto.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/estdlib/src/crypto.erl#L1).
 /// Docs: [Module crypto](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/crypto.html).
 ///
 /// **Availability:** many algorithms and APIs depend on the AtomVM build

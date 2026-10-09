@@ -5,7 +5,7 @@
 /// [`usb_serial_jtag_name`](#usb_serial_jtag_name) (`"USB_SERIAL_JTAG"`).
 /// RP2/STM32 USB CDC is a separate `usb_cdc` module, not this one.
 ///
-/// Source: [`libs/avm_esp32/src/uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl).
+/// Source: [`libs/avm_esp32/src/uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L1).
 /// Edoc: [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html).
 import gleam/option.{type Option}
 
@@ -38,7 +38,7 @@ pub type Parity {
 
 /// Options for [`open`](#open) / [`open_default`](#open_default).
 ///
-/// See [`uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl)
+/// See [`uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L1)
 /// and [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html).
 pub type Config {
   Config(
@@ -88,7 +88,7 @@ pub fn default_config() -> Config {
 /// Pass to [`open`](#open) on chips that expose the built-in USB-Serial-JTAG
 /// peripheral (for example ESP32-C3/C5/C6/C61/H2/S3/P4).
 ///
-/// See [`uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl)
+/// See [`uart.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L1)
 /// and [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html).
 pub fn usb_serial_jtag_name() -> String {
   "USB_SERIAL_JTAG"
@@ -97,7 +97,7 @@ pub fn usb_serial_jtag_name() -> String {
 /// Open a named UART peripheral (`"UART0"` / `"UART1"` / `"UART2"` /
 /// `"USB_SERIAL_JTAG"`).
 ///
-/// See [`uart:open/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl)
+/// See [`uart:open/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L54)
 /// and [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html).
 pub fn open(name: String, config: Config) -> Result(Uart, Error) {
   let Config(
@@ -129,7 +129,7 @@ pub fn open(name: String, config: Config) -> Result(Uart, Error) {
 
 /// Open the default UART with the given options.
 ///
-/// See [`uart:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl)
+/// See [`uart:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L66)
 /// and [`uart_hal`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/uart_hal.html).
 pub fn open_default(config: Config) -> Result(Uart, Error) {
   let Config(
@@ -160,19 +160,19 @@ pub fn open_default(config: Config) -> Result(Uart, Error) {
 
 /// Write data to the UART.
 ///
-/// See [`uart:write/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl).
+/// See [`uart:write/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L155).
 @external(erlang, "atomvm_gleam_uart_ffi", "write")
 pub fn write(uart: Uart, data: BitArray) -> Result(Nil, Error)
 
 /// Read available data, waiting up to `timeout_ms`.
 ///
-/// See [`uart:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl).
+/// See [`uart:read/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L135).
 @external(erlang, "atomvm_gleam_uart_ffi", "read")
 pub fn read(uart: Uart, timeout_ms: Int) -> Result(BitArray, Error)
 
 /// Close the UART driver.
 ///
-/// See [`uart:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl).
+/// See [`uart:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/uart.erl#L78).
 @external(erlang, "atomvm_gleam_uart_ffi", "close")
 pub fn close(uart: Uart) -> Result(Nil, Error)
 

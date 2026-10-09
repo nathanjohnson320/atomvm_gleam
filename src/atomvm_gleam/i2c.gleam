@@ -1,7 +1,7 @@
 //// Typed wrappers for AtomVM 0.7 `i2c`.
 ////
 //// Upstream:
-//// [libs/avm_esp32/src/i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl)
+//// [libs/avm_esp32/src/i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L1)
 //// (same export names on RP2/STM32 under `avm_rp2` / `avm_stm32`).
 ////
 //// ## Two write styles
@@ -20,12 +20,12 @@
 
 /// Opaque handle for an AtomVM I²C bus opened via `i2c:open/1`.
 ///
-/// See [i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L1).
 pub type Bus
 
 /// Errors from the AtomVM i2c driver.
 ///
-/// See [i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [i2c.erl](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L1).
 pub type Error {
   Failed
   NotSupported
@@ -36,7 +36,7 @@ pub type Error {
 
 /// Bus open options. `clock_speed_hz` is required on AtomVM.
 ///
-/// See [`i2c:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L88).
 pub type Config {
   Config(scl: Int, sda: Int, clock_speed_hz: Int)
 }
@@ -54,7 +54,7 @@ pub fn error_to_string(error: Error) -> String {
 
 /// Open an I²C bus.
 ///
-/// See [`i2c:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:open/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L88).
 pub fn open(config: Config) -> Result(Bus, Error) {
   let Config(scl:, sda:, clock_speed_hz:) = config
   open_ffi(scl, sda, clock_speed_hz)
@@ -65,7 +65,7 @@ fn open_ffi(scl: Int, sda: Int, clock_speed_hz: Int) -> Result(Bus, Error)
 
 /// Close an I²C bus.
 ///
-/// See [`i2c:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:close/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L106).
 @external(erlang, "atomvm_gleam_i2c_ffi", "close")
 pub fn close(bus: Bus) -> Result(Nil, Error)
 
@@ -74,14 +74,14 @@ pub fn close(bus: Bus) -> Result(Nil, Error)
 /// Follow with one or more `write_byte` / `write_transmission_bytes` calls,
 /// then `end_transmission`. Not used with register `write_bytes` / `read_bytes`.
 ///
-/// See [`i2c:begin_transmission/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:begin_transmission/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L122).
 @external(erlang, "atomvm_gleam_i2c_ffi", "begin_transmission")
 pub fn begin_transmission(bus: Bus, address: Int) -> Result(Nil, Error)
 
 /// Queue one byte inside an open transmission (`begin_transmission` …
 /// `end_transmission`).
 ///
-/// See [`i2c:write_byte/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:write_byte/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L138).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_byte")
 pub fn write_byte(bus: Bus, byte: Int) -> Result(Nil, Error)
 
@@ -89,13 +89,13 @@ pub fn write_byte(bus: Bus, byte: Int) -> Result(Nil, Error)
 ///
 /// Upstream `i2c:write_bytes/2`.
 ///
-/// See [`i2c:write_bytes/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:write_bytes/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L154).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_transmission_bytes")
 pub fn write_transmission_bytes(bus: Bus, data: BitArray) -> Result(Nil, Error)
 
 /// End a framed write started with `begin_transmission`.
 ///
-/// See [`i2c:end_transmission/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:end_transmission/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L170).
 @external(erlang, "atomvm_gleam_i2c_ffi", "end_transmission")
 pub fn end_transmission(bus: Bus) -> Result(Nil, Error)
 
@@ -103,7 +103,7 @@ pub fn end_transmission(bus: Bus) -> Result(Nil, Error)
 ///
 /// One-shot; do not wrap in `begin_transmission` / `end_transmission`.
 ///
-/// See [`i2c:read_bytes/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:read_bytes/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L210).
 @external(erlang, "atomvm_gleam_i2c_ffi", "read_bytes")
 pub fn read_bytes(
   bus: Bus,
@@ -116,7 +116,7 @@ pub fn read_bytes(
 ///
 /// Upstream `i2c:write_bytes/3`. One-shot; do not wrap in transmission helpers.
 ///
-/// See [`i2c:write_bytes/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:write_bytes/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L226).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_bytes_to")
 pub fn write_bytes_to(
   bus: Bus,
@@ -130,7 +130,7 @@ pub fn write_bytes_to(
 /// `begin_transmission` / `end_transmission`; use those helpers when you need
 /// a custom framed payload instead.
 ///
-/// See [`i2c:write_bytes/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl).
+/// See [`i2c:write_bytes/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/i2c.erl#L249).
 @external(erlang, "atomvm_gleam_i2c_ffi", "write_bytes")
 pub fn write_bytes(
   bus: Bus,

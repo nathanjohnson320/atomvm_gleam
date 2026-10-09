@@ -1,4 +1,4 @@
-//// Full json encode/decode suite (portable across AtomVM platforms).
+//// Json encode/decode suite (portable across AtomVM platforms).
 
 import atomvm_gleam/json
 import avm/check.{type Failure}

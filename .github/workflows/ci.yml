@@ -39,7 +39,7 @@ jobs:
       - name: Install build deps for atomvmlib
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+          sudo apt-get install -y cmake g++ gperf zlib1g-dev libmbedtls-dev
       - name: Pack and run WASM harness
         run: |
           chmod +x scripts/*.sh
@@ -59,7 +59,7 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev socat
+          sudo apt-get install -y cmake g++ gperf zlib1g-dev libmbedtls-dev socat
       - name: Pack and run unix harness
         run: |
           chmod +x scripts/*.sh
@@ -80,7 +80,9 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+          # libsdl2: Espressif qemu-system-xtensa is linked against SDL2.
+          sudo apt-get install -y cmake g++ gperf zlib1g-dev libmbedtls-dev \
+            libsdl2-2.0-0
       - name: Pack and run ESP32 QEMU harness
         run: |
           chmod +x scripts/*.sh
@@ -104,7 +106,7 @@ jobs:
       - name: Install Pico build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build g++ \
+          sudo apt-get install -y cmake ninja-build g++ gperf \
             gcc-arm-none-eabi libnewlib-arm-none-eabi \
             libstdc++-arm-none-eabi-newlib
       - name: Pack and run Pico rp2040js harness

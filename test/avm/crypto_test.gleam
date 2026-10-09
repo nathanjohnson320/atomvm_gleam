@@ -1,4 +1,4 @@
-//// Full crypto suite: Ok on WASM; Ok / NotSupported / undef elsewhere.
+//// Crypto suite: Ok on WASM; Ok / NotSupported / undef elsewhere.
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/crypto
@@ -120,67 +120,107 @@ fn hash_family() -> Result(Nil, Failure) {
     bit_array.byte_size(digest),
     32,
   ))
-  use st <- result.try(must("crypto.hash_init", crypto.hash_init(crypto.Sha256)))
-  use st2 <- result.try(must(
-    "crypto.hash_update",
-    crypto.hash_update(st, <<"ab">>),
+  // Some builds (e.g. Pico) expose hash/1 but omit streaming hash NIFs.
+  use maybe_st <- result.try(take(
+    "crypto.hash_init",
+    crypto.hash_init(crypto.Sha256),
   ))
-  use digest2 <- result.try(must("crypto.hash_final", crypto.hash_final(st2)))
-  check.assert_eq("stream hash size", bit_array.byte_size(digest2), 32)
+  case maybe_st {
+    option.None -> {
+      use _ <- result.try(check.cover_not_supported("crypto.hash_update"))
+      use _ <- result.try(check.cover_not_supported("crypto.hash_final"))
+      Ok(Nil)
+    }
+    option.Some(st) -> {
+      use st2 <- result.try(must(
+        "crypto.hash_update",
+        crypto.hash_update(st, <<"ab">>),
+      ))
+      use digest2 <- result.try(must(
+        "crypto.hash_final",
+        crypto.hash_final(st2),
+      ))
+      check.assert_eq("stream hash size", bit_array.byte_size(digest2), 32)
+    }
+  }
 }
 
 fn mac_family() -> Result(Nil, Failure) {
   let key = <<"secret-key!!!!!!!!">>
   let data = <<"payload">>
-  use mac <- result.try(must(
+  // Pico may expose hash/1 without HMAC NIFs.
+  use maybe_mac <- result.try(take(
     "crypto.mac_hmac",
     crypto.mac_hmac(crypto.Sha256, key, data),
   ))
-  use _ <- result.try(check.assert_true(
-    "hmac nonempty",
-    bit_array.byte_size(mac) > 0,
-  ))
-  use _ <- result.try(take(
-    "crypto.mac_hmac_ripemd160",
-    crypto.mac_hmac_ripemd160(key, data),
-  ))
-  use _ <- result.try(take(
-    "crypto.mac_cmac",
-    crypto.mac_cmac(crypto.CmacAes128Ecb, key, data),
-  ))
-  use st <- result.try(must(
-    "crypto.mac_init_hmac",
-    crypto.mac_init_hmac(crypto.Sha256, key),
-  ))
-  use st2 <- result.try(must("crypto.mac_update", crypto.mac_update(st, data)))
-  use mac2 <- result.try(must("crypto.mac_final", crypto.mac_final(st2)))
-  use _ <- result.try(check.assert_true(
-    "mac_final nonempty",
-    bit_array.byte_size(mac2) > 0,
-  ))
-  use st3 <- result.try(must(
-    "crypto.mac_init_hmac",
-    crypto.mac_init_hmac(crypto.Sha256, key),
-  ))
-  use st4 <- result.try(check.assert_ok(
-    "mac_update 2",
-    crypto.mac_update(st3, data),
-  ))
-  use trunc <- result.try(must("crypto.mac_final_n", crypto.mac_final_n(st4, 8)))
-  use _ <- result.try(check.assert_eq(
-    "mac_final_n size",
-    bit_array.byte_size(trunc),
-    8,
-  ))
-  use _ <- result.try(take(
-    "crypto.mac_init_hmac_ripemd160",
-    crypto.mac_init_hmac_ripemd160(key),
-  ))
-  use _ <- result.try(take(
-    "crypto.mac_init_cmac",
-    crypto.mac_init_cmac(crypto.CmacAes128Ecb, key),
-  ))
-  Ok(Nil)
+  case maybe_mac {
+    option.None -> {
+      use _ <- result.try(check.cover_not_supported("crypto.mac_hmac_ripemd160"))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_cmac"))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_init_hmac"))
+      use _ <- result.try(check.cover_not_supported(
+        "crypto.mac_init_hmac_ripemd160",
+      ))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_init_cmac"))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_update"))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_final"))
+      use _ <- result.try(check.cover_not_supported("crypto.mac_final_n"))
+      Ok(Nil)
+    }
+    option.Some(mac) -> {
+      use _ <- result.try(check.assert_true(
+        "hmac nonempty",
+        bit_array.byte_size(mac) > 0,
+      ))
+      use _ <- result.try(take(
+        "crypto.mac_hmac_ripemd160",
+        crypto.mac_hmac_ripemd160(key, data),
+      ))
+      use _ <- result.try(take(
+        "crypto.mac_cmac",
+        crypto.mac_cmac(crypto.CmacAes128Ecb, key, data),
+      ))
+      use st <- result.try(must(
+        "crypto.mac_init_hmac",
+        crypto.mac_init_hmac(crypto.Sha256, key),
+      ))
+      use st2 <- result.try(must(
+        "crypto.mac_update",
+        crypto.mac_update(st, data),
+      ))
+      use mac2 <- result.try(must("crypto.mac_final", crypto.mac_final(st2)))
+      use _ <- result.try(check.assert_true(
+        "mac_final nonempty",
+        bit_array.byte_size(mac2) > 0,
+      ))
+      use st3 <- result.try(must(
+        "crypto.mac_init_hmac",
+        crypto.mac_init_hmac(crypto.Sha256, key),
+      ))
+      use st4 <- result.try(check.assert_ok(
+        "mac_update 2",
+        crypto.mac_update(st3, data),
+      ))
+      use trunc <- result.try(must(
+        "crypto.mac_final_n",
+        crypto.mac_final_n(st4, 8),
+      ))
+      use _ <- result.try(check.assert_eq(
+        "mac_final_n size",
+        bit_array.byte_size(trunc),
+        8,
+      ))
+      use _ <- result.try(take(
+        "crypto.mac_init_hmac_ripemd160",
+        crypto.mac_init_hmac_ripemd160(key),
+      ))
+      use _ <- result.try(take(
+        "crypto.mac_init_cmac",
+        crypto.mac_init_cmac(crypto.CmacAes128Ecb, key),
+      ))
+      Ok(Nil)
+    }
+  }
 }
 
 fn rand_and_equals() -> Result(Nil, Failure) {

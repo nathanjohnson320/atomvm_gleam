@@ -11,6 +11,7 @@ pub fn run() -> Result(Nil, Failure) {
   use _ <- result.try(stat_opendir())
   use _ <- result.try(termios_empty())
   use _ <- result.try(creation_smoke())
+  use _ <- result.try(mkfifo_and_pwrite())
   Ok(Nil)
 }
 
@@ -125,4 +126,40 @@ fn termios_empty() -> Result(Nil, Failure) {
 fn creation_smoke() -> Result(Nil, Failure) {
   let _ = atomvm.get_creation()
   check.cover("atomvm.get_creation", check.ok())
+}
+
+fn mkfifo_and_pwrite() -> Result(Nil, Failure) {
+  let fifo = "/tmp/atomvm_gleam_fifo"
+  let path = "/tmp/atomvm_gleam_posix_pwrite.bin"
+  let _ = atomvm.posix_unlink(fifo)
+  let _ = atomvm.posix_unlink(path)
+  use _ <- result.try(check.cover_ok(
+    "atomvm.posix_mkfifo",
+    atomvm.posix_mkfifo(fifo, 0o644),
+  ))
+  use _ <- result.try(check.cover_ok(
+    "atomvm.posix_unlink",
+    atomvm.posix_unlink(fifo),
+  ))
+  use fd <- result.try(check.assert_ok(
+    "posix_open pwrite",
+    atomvm.posix_open_mode(
+      path,
+      [atomvm.OCreat, atomvm.ORdwr, atomvm.OTrunc],
+      0o644,
+    ),
+  ))
+  use _ <- result.try(check.cover_ok(
+    "atomvm.posix_pwrite",
+    atomvm.posix_pwrite(fd, <<"xy">>, 0),
+  ))
+  use _ <- result.try(check.cover_ok(
+    "atomvm.posix_close",
+    atomvm.posix_close(fd),
+  ))
+  use _ <- result.try(check.cover_ok(
+    "atomvm.posix_unlink",
+    atomvm.posix_unlink(path),
+  ))
+  Ok(Nil)
 }

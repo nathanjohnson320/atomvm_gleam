@@ -15,7 +15,7 @@ until AtomVM ships a stable 0.7.0.
 
 ```toml
 [dependencies]
-atomvm_gleam = ">= 0.7.0-beta.0-1 and < 0.8.0"
+atomvm_gleam = ">= 0.7.0-beta.0-2 and < 0.8.0"
 ```
 
 Import as `atomvm_gleam/<module>`, e.g. `import atomvm_gleam/gpio`.

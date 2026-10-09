@@ -28,89 +28,82 @@
 ]).
 
 open() ->
-    wrap_gpio(gpio:open()).
+    try_gpio(fun() -> gpio:open() end).
 
 start() ->
-    wrap_gpio(gpio:start()).
+    try_gpio(fun() -> gpio:start() end).
 
 close(Gpio) ->
-    wrap_ok(gpio:close(Gpio)).
+    try_ok(fun() -> gpio:close(Gpio) end).
 
 stop() ->
-    wrap_ok(gpio:stop()).
+    try_ok(fun() -> gpio:stop() end).
 
 set_direction(Gpio, Pin, Direction) ->
-    wrap_ok(gpio:set_direction(Gpio, pin_term(Pin), Direction)).
+    try_ok(fun() -> gpio:set_direction(Gpio, pin_term(Pin), Direction) end).
 
 set_level(Gpio, Pin, Level) ->
-    wrap_ok(gpio:set_level(Gpio, pin_term(Pin), level_atom(Level))).
+    try_ok(fun() -> gpio:set_level(Gpio, pin_term(Pin), level_atom(Level)) end).
 
 read(Gpio, Pin) ->
-    wrap_level(gpio:read(Gpio, pin_term(Pin))).
+    try_level(fun() -> gpio:read(Gpio, pin_term(Pin)) end).
 
 set_int(Gpio, Pin, Trigger) ->
-    wrap_ok(gpio:set_int(Gpio, pin_term(Pin), Trigger)).
+    try_ok(fun() -> gpio:set_int(Gpio, pin_term(Pin), Trigger) end).
 
 set_int_to(Gpio, Pin, Trigger, Pid) ->
-    wrap_ok(gpio:set_int(Gpio, pin_term(Pin), Trigger, Pid)).
+    try_ok(fun() -> gpio:set_int(Gpio, pin_term(Pin), Trigger, Pid) end).
 
 remove_int(Gpio, Pin) ->
-    wrap_ok(gpio:remove_int(Gpio, pin_term(Pin))).
+    try_ok(fun() -> gpio:remove_int(Gpio, pin_term(Pin)) end).
 
 attach_interrupt(Pin, Trigger) ->
-    wrap_ok(gpio:attach_interrupt(pin_term(Pin), Trigger)).
+    try_ok(fun() -> gpio:attach_interrupt(pin_term(Pin), Trigger) end).
 
 detach_interrupt(Pin) ->
-    wrap_ok(gpio:detach_interrupt(pin_term(Pin))).
+    try_ok(fun() -> gpio:detach_interrupt(pin_term(Pin)) end).
 
 init(Pin) ->
-    wrap_ok(gpio:init(pin_term(Pin))).
+    try_ok(fun() -> gpio:init(pin_term(Pin)) end).
 
 deinit(Pin) ->
-    wrap_ok(gpio:deinit(pin_term(Pin))).
+    try_ok(fun() -> gpio:deinit(pin_term(Pin)) end).
 
 set_function(Pin, Function) ->
-    wrap_ok(gpio:set_function(Pin, Function)).
+    try_ok(fun() -> gpio:set_function(Pin, Function) end).
 
 set_pin_mode(Pin, Direction) ->
-    wrap_ok(gpio:set_pin_mode(pin_term(Pin), Direction)).
+    try_ok(fun() -> gpio:set_pin_mode(pin_term(Pin), Direction) end).
 
 set_pin_pull(Pin, Pull) ->
-    wrap_ok(gpio:set_pin_pull(pin_term(Pin), Pull)).
+    try_ok(fun() -> gpio:set_pin_pull(pin_term(Pin), Pull) end).
 
 digital_read(Pin) ->
-    wrap_level(gpio:digital_read(pin_term(Pin))).
+    try_level(fun() -> gpio:digital_read(pin_term(Pin)) end).
 
 digital_write(Pin, Level) ->
-    wrap_ok(gpio:digital_write(pin_term(Pin), level_atom(Level))).
+    try_ok(fun() -> gpio:digital_write(pin_term(Pin), level_atom(Level)) end).
 
 hold_en(Pin) ->
-    wrap_ok(gpio:hold_en(pin_term(Pin))).
+    try_ok(fun() -> gpio:hold_en(pin_term(Pin)) end).
 
 hold_dis(Pin) ->
-    wrap_ok(gpio:hold_dis(pin_term(Pin))).
+    try_ok(fun() -> gpio:hold_dis(pin_term(Pin)) end).
 
 deep_sleep_hold_en() ->
-    wrap_ok(gpio:deep_sleep_hold_en()).
+    try_ok(fun() -> gpio:deep_sleep_hold_en() end).
 
 deep_sleep_hold_dis() ->
-    wrap_ok(gpio:deep_sleep_hold_dis()).
+    try_ok(fun() -> gpio:deep_sleep_hold_dis() end).
 
 wakeup_enable(Pin, Level) ->
-    wrap_ok(gpio:wakeup_enable(pin_term(Pin), level_atom(Level))).
+    try_ok(fun() -> gpio:wakeup_enable(pin_term(Pin), level_atom(Level)) end).
 
 %% Generic UNIX / Linux only (`avm_unix` gpio). Gleam String → Erlang string list.
 set_sysfs_base(Dir) ->
-    try
-        wrap_ok(gpio:set_sysfs_base(unicode:characters_to_list(Dir)))
-    catch
-        error:undef ->
-            {error, not_supported};
-        error:badarg ->
-            {error, badarg};
-        error:Reason ->
-            wrap_reason(Reason)
-    end.
+    try_ok(fun() ->
+        gpio:set_sysfs_base(unicode:characters_to_list(Dir))
+    end).
 
 %% Gleam `PinNum(N)` / `WlPin(N)` → AtomVM pin term (`N` or `{wl, N}`).
 pin_term({pin_num, N}) when is_integer(N) ->
@@ -122,6 +115,54 @@ level_atom(pin_high) ->
     high;
 level_atom(pin_low) ->
     low.
+
+try_gpio(Fun) ->
+    try
+        wrap_gpio(Fun())
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
+try_ok(Fun) ->
+    try
+        wrap_ok(Fun())
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
+
+try_level(Fun) ->
+    try
+        wrap_level(Fun())
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Reason when is_atom(Reason) ->
+            wrap_reason(Reason);
+        error:{error, Reason} ->
+            wrap_reason(Reason);
+        _:_ ->
+            {error, failed}
+    end.
 
 wrap_gpio(error) ->
     {error, failed};
@@ -156,6 +197,8 @@ wrap_reason(timeout) ->
     {error, timeout};
 wrap_reason(failed) ->
     {error, failed};
+wrap_reason(undef) ->
+    {error, not_supported};
 wrap_reason(Reason) when is_atom(Reason) ->
     {error, {other, atom_to_binary(Reason, utf8)}};
 wrap_reason(Reason) when is_binary(Reason) ->

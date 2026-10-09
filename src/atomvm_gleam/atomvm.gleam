@@ -11,8 +11,9 @@
 ///
 /// POSIX file, directory, subprocess, and termios APIs below are
 /// **platform-dependent**. They are typically available on `generic_unix` and
-/// MCU / UART builds that expose the corresponding NIFs; other platforms
-/// return `NotSupported` or raise at runtime.
+/// MCU / UART builds that expose the corresponding NIFs. Missing NIFs surface
+/// as `Error(Undefined)` (upstream `erlang:nif_error(undefined)`), not
+/// `NotSupported`.
 import gleam/erlang/process.{type Pid}
 import gleam/erlang/reference.{type Reference}
 import gleam/option.{type Option}

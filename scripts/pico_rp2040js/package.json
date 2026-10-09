@@ -1,0 +1,9 @@
+{
+  "name": "atomvm-gleam-pico-rp2040js",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "rp2040js": "^1.3.3",
+    "uf2": "^1.0.0"
+  }
+}

@@ -76,7 +76,8 @@
     unregister_touchmove/1,
     register_touchcancel/2,
     register_touchcancel_user_data/3,
-    unregister_touchcancel/1
+    unregister_touchcancel/1,
+    map_raised/1
 ]).
 
 run_script(Script) ->
@@ -497,6 +498,9 @@ map_unregister({target, T}) ->
     map_target(T).
 
 %% `{ok, Handle}` | `{ok, Handle, deferred}` | `{error, Reason}` → RegisterOk.
+map_raised(Reason) when is_atom(Reason) ->
+    wrap_call(fun() -> error(Reason) end).
+
 wrap_register(Fun) ->
     try
         case Fun() of
@@ -515,7 +519,7 @@ wrap_register(Fun) ->
         error:undef ->
             {error, not_supported};
         error:undefined ->
-            {error, not_supported};
+            {error, failed};
         error:Thrown when is_atom(Thrown) ->
             wrap_reason(Thrown);
         error:{error, Thrown} ->
@@ -533,7 +537,7 @@ wrap_call(Fun) ->
         error:undef ->
             {error, not_supported};
         error:undefined ->
-            {error, not_supported};
+            {error, failed};
         error:Reason when is_atom(Reason) ->
             wrap_reason(Reason);
         error:{error, Reason} ->
@@ -560,7 +564,7 @@ wrap_call_value(Fun) ->
         error:undef ->
             {error, not_supported};
         error:undefined ->
-            {error, not_supported};
+            {error, failed};
         error:Thrown when is_atom(Thrown) ->
             wrap_reason(Thrown);
         error:{error, Thrown} ->

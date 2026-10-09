@@ -1,20 +1,8 @@
 -module(atomvm_gleam_console_ffi).
--export([start/0, puts/1, puts_to/2, print/1, flush/0, flush_handle/1, print_err/1]).
+-export([start/0, puts/1, puts_to/2, print/1, flush/0, flush_handle/1, print_err/1, map_raised/1]).
 
 start() ->
-    try
-        Port = console:start(),
-        {ok, Port}
-    catch
-        error:badarg ->
-            {error, badarg};
-        error:Reason when is_atom(Reason) ->
-            wrap_reason(Reason);
-        error:{error, Reason} ->
-            wrap_reason(Reason);
-        _:_ ->
-            {error, failed}
-    end.
+    wrap_call(fun() -> console:start() end).
 
 puts(Text) ->
     wrap_call(fun() -> console:puts(Text) end).
@@ -34,13 +22,16 @@ flush_handle(Console) ->
 print_err(Text) ->
     wrap_call(fun() -> console:print_err(Text) end).
 
+map_raised(Reason) when is_atom(Reason) ->
+    wrap_call(fun() -> error(Reason) end).
+
 wrap_call(Fun) ->
     try
         wrap_ok(Fun())
     catch
         error:badarg ->
             {error, badarg};
-        error:undef ->
+        error:not_supported ->
             {error, not_supported};
         error:Reason when is_atom(Reason) ->
             wrap_reason(Reason);
@@ -55,7 +46,9 @@ wrap_ok(ok) ->
 wrap_ok(error) ->
     {error, failed};
 wrap_ok({error, Reason}) ->
-    wrap_reason(Reason).
+    wrap_reason(Reason);
+wrap_ok(Port) when is_port(Port) ->
+    {ok, Port}.
 
 wrap_reason(not_supported) ->
     {error, not_supported};

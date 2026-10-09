@@ -51,6 +51,12 @@ Mirror existing modules (`gpio_ffi`, `esp_ffi`, `network_ffi`, `ledc_ffi`):
 - Remap Gleam constructors that would clash with Erlang atoms in FFI (example: `pin_high` → `high`).
 - Convert Gleam `String` namespace/key args to atoms with `binary_to_atom(Name, utf8)` when upstream wants atoms.
 - Catch `error:badarg` / `error:Reason` where NIFs can throw (see `esp_ffi`).
+- `error:undef` → `NotSupported` only for **platform-gated** modules (`gpio`,
+  `esp`, `pico`, `emscripten`, …). Universal modules (`crypto`, `console`, …)
+  must not map `undef` to `NotSupported` (that hides missing beams / pack bugs).
+- Upstream NIF stubs raise `undefined` (`erlang:nif_error(undefined)`). Map that
+  to `Failed` / `Undefined` / `Other("undefined")` — never `NotSupported` —
+  even on the platform that owns the module.
 
 ## Scope rules
 
@@ -65,9 +71,25 @@ Mirror existing modules (`gpio_ffi`, `esp_ffi`, `network_ffi`, `ledc_ffi`):
 ```sh
 gleam format
 gleam build
+gleam test
 ```
 
-Hardware flashing is optional unless the issue asks for it. Compile/format must pass.
+When changing FFI modules, also pack and run the AtomVM harness on at least one
+runtime that exercises the change:
+
+```sh
+./scripts/run_avm_unix.sh
+# or: run_avm_wasm.sh / run_avm_esp32_qemu.sh / run_avm_pico_rp2040js.sh
+```
+
+Runners re-pack themselves. ESP32 and Pico use `pack_avm_tests.sh --no-libs` so
+a host-built `atomvmlib` cannot shadow firmware `gpio` / platform modules.
+
+Pico rp2040js uses a locally built non-W UF2 (`fetch_atomvm.sh pico`), not the
+release Pico-W image (that hangs under the emulator).
+
+Hardware flashing is optional unless the issue asks for it. Format, build, and
+host tests must pass.
 
 ## Parallelism
 

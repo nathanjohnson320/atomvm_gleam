@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  host:
+    name: Host gleam test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          gleam-version: "1.19.0"
+          rebar3-version: "3"
+      - name: gleam test
+        run: |
+          gleam deps download
+          gleam format --check
+          gleam build
+          gleam test
+      - name: Behavioral API coverage gate
+        run: python3 scripts/coverage_report.py --min 80 --list-uncovered
+
+  atomvm-wasm:
+    name: AtomVM WASM harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          gleam-version: "1.19.0"
+          rebar3-version: "3"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install build deps for atomvmlib
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+      - name: Pack and run WASM harness
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/run_avm_wasm.sh
+
+  atomvm-unix:
+    name: AtomVM generic_unix harness
+    runs-on: ubuntu-latest
+    # Heavier: builds AtomVM from the matching tag when no binary is cached.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          gleam-version: "1.19.0"
+          rebar3-version: "3"
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+      - name: Pack and run unix harness
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/run_avm_unix.sh
+
+  atomvm-esp32-qemu:
+    name: AtomVM ESP32 QEMU harness
+    runs-on: ubuntu-latest
+    # Optional / best-effort: Espressif QEMU via scripts/fetch_atomvm.sh.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          gleam-version: "1.19.0"
+          rebar3-version: "3"
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+      - name: Pack and run ESP32 QEMU harness
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/run_avm_esp32_qemu.sh
+
+  atomvm-pico-rp2040js:
+    name: AtomVM Pico rp2040js harness
+    runs-on: ubuntu-latest
+    # Builds a non-W Pico UF2 (SMP off) then boots it under rp2040js.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          gleam-version: "1.19.0"
+          rebar3-version: "3"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Pico build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ \
+            gcc-arm-none-eabi libnewlib-arm-none-eabi \
+            libstdc++-arm-none-eabi-newlib
+      - name: Pack and run Pico rp2040js harness
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/run_avm_pico_rp2040js.sh

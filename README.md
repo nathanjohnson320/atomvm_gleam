@@ -39,6 +39,43 @@ HALs, alisp, JIT, `esp32devmode`, `epmd`, `port`, `logger_manager`,
 ```sh
 gleam format
 gleam build
+gleam test
 ```
 
 See [`AGENTS.md`](./AGENTS.md) for contribution conventions.
+
+## Testing
+
+- **Host (normal functions):** `gleam test`
+- **Generic Unix:** `./scripts/run_avm_unix.sh`
+- **WASM / emscripten:** `./scripts/run_avm_wasm.sh`
+- **ESP32 (QEMU):** `./scripts/run_avm_esp32_qemu.sh`
+- **ESP32 (board):** `./scripts/run_avm_esp32_flash.sh --base` once, then `./scripts/run_avm_esp32_flash.sh`
+- **Pico (rp2040js):** `./scripts/run_avm_pico_rp2040js.sh` (Node 20+)
+
+Each AtomVM runner re-packs `build/tests.avm` for its target (ESP32 / Pico omit
+host `atomvmlib` so platform modules are not shadowed) and prints
+`AVM_GLEAM_TESTS_OK` on success.
+
+### Behavioral API coverage
+
+Public APIs in `src/atomvm_gleam/*.gleam` count toward coverage only when a test
+hard-asserts via `check.cover*` / `// COVER:` tags (`Ok` / value equality, or
+expected `Error(NotSupported)` off-platform). Soft-skips on `Failed` do not
+count. Measure with:
+
+```sh
+python3 scripts/coverage_report.py --min 80 --list-uncovered
+```
+
+Platform ownership (where suites exercise the NIFs):
+
+| Platform | Modules |
+| --- | --- |
+| Host `gleam test` | `error_to_string`, pure builders |
+| WASM | `emscripten`, `emscripten_websocket`, `crypto`, `json` |
+| Generic Unix | `atomvm` posix, `gpio` sysfs, `avm_pubsub`, `crypto`/`json` |
+| ESP32 QEMU | `esp`, `ledc`, `adc`, `esp_dac`, `gpio`, bus/network entrypoints |
+| Pico rp2040js | `gpio`, `pico` (CYW43 → `NotSupported` on non-W) |
+
+Destructive ESP APIs (`restart`, deep/light sleep) are excluded from the gate.

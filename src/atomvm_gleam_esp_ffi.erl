@@ -457,6 +457,8 @@ wrap_reason(not_found) ->
     {error, not_found};
 wrap_reason(failed) ->
     {error, failed};
+wrap_reason(undef) ->
+    {error, not_supported};
 wrap_reason(Reason) when is_atom(Reason) ->
     {error, {other, atom_to_binary(Reason, utf8)}};
 wrap_reason(Reason) when is_binary(Reason) ->

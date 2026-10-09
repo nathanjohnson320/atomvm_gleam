@@ -1,5 +1,13 @@
 *.avm
 *.beam
 *.ez
+*.pyc
+__pycache__/
 build
 erl_crash.dump
+.atomvm/
+.idea/
+.DS_Store
+scripts/pico_rp2040js/node_modules/
+scripts/pico_rp2040js/package-lock.json
+scripts/coverage_report.py

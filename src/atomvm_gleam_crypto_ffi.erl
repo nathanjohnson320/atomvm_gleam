@@ -34,7 +34,8 @@
     verify_ecdsa/5,
     verify_eddsa/3,
     hash_equals/2,
-    info_lib/0
+    info_lib/0,
+    map_raised/1
 ]).
 
 hash(Algorithm, Data) ->
@@ -202,13 +203,16 @@ info_lib() ->
     catch
         error:badarg ->
             {error, badarg};
-        error:undef ->
+        error:not_supported ->
             {error, not_supported};
         error:Reason when is_atom(Reason) ->
             wrap_reason(Reason);
         _:_ ->
             {error, failed}
     end.
+
+map_raised(Reason) when is_atom(Reason) ->
+    wrap_binary(fun() -> error(Reason) end).
 
 crypto_opts(Encrypt, none) ->
     Encrypt;
@@ -272,8 +276,6 @@ wrap_binary(Fun) ->
     catch
         error:badarg ->
             {error, badarg};
-        error:undef ->
-            {error, not_supported};
         error:not_supported ->
             {error, not_supported};
         error:Reason when is_atom(Reason) ->
@@ -292,8 +294,6 @@ wrap_reason(timeout) ->
     {error, timeout};
 wrap_reason(failed) ->
     {error, failed};
-wrap_reason(undef) ->
-    {error, not_supported};
 wrap_reason(Reason) when is_atom(Reason) ->
     {error, {other, atom_to_binary(Reason, utf8)}};
 wrap_reason(Reason) when is_binary(Reason) ->

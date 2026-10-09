@@ -6,7 +6,7 @@
 //// For more info contact nate
 ////
 //// Behavioral coverage tags: pass API ids as string literals to `cover*`
-//// helpers so `scripts/coverage_report.py` can attribute hard asserts.
+//// helpers (e.g. `"esp.freq_hz"`) to mark hard asserts.
 
 import gleam/string
 
@@ -22,7 +22,7 @@ pub fn fail(message: String) -> Result(Nil, Failure) {
   Error(Failure(message))
 }
 
-/// Tag a hard behavioral check for `scripts/coverage_report.py`.
+/// Tag a hard behavioral check.
 /// The `id` string literal must be `module.fn` (e.g. `"esp.freq_hz"`).
 pub fn cover(id: String, result: Result(a, Failure)) -> Result(a, Failure) {
   let _ = id

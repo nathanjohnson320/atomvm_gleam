@@ -8,32 +8,70 @@
 ]).
 
 open(Name, Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity) ->
-    wrap_uart(
-        uart:open(Name, opts(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity))
-    ).
+    try
+        wrap_uart(
+            uart:open(
+                Name,
+                opts(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity)
+            )
+        )
+    catch
+        error:Thrown ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
 
 open_default(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity) ->
-    wrap_uart(
-        uart:open(opts(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity))
-    ).
+    try
+        wrap_uart(
+            uart:open(opts(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity))
+        )
+    catch
+        error:Thrown ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
 
 write(Uart, Data) ->
-    wrap_ok(uart:write(Uart, Data)).
+    try
+        wrap_ok(uart:write(Uart, Data))
+    catch
+        error:Thrown ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
 
 read(Uart, TimeoutMs) ->
-    case uart:read(Uart, TimeoutMs) of
-        {ok, Data} when is_binary(Data) ->
-            {ok, Data};
-        {ok, Data} ->
-            {ok, iolist_to_binary(Data)};
-        {error, Reason} ->
-            wrap_reason(Reason);
-        error ->
+    try
+        case uart:read(Uart, TimeoutMs) of
+            {ok, Data} when is_binary(Data) ->
+                {ok, Data};
+            {ok, Data} ->
+                {ok, iolist_to_binary(Data)};
+            {error, Reason} ->
+                wrap_reason(Reason);
+            error ->
+                {error, failed}
+        end
+    catch
+        error:Thrown ->
+            wrap_reason(Thrown);
+        _:_ ->
             {error, failed}
     end.
 
 close(Uart) ->
-    wrap_ok(uart:close(Uart)).
+    try
+        wrap_ok(uart:close(Uart))
+    catch
+        error:Thrown ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
 
 opts(Tx, Rx, Rts, Cts, Speed, DataBits, StopBits, EventQueueLen, Flow, Parity) ->
     opt(tx, Tx) ++

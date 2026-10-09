@@ -8,7 +8,9 @@ import avm/emscripten_events_test
 import avm/emscripten_test
 import avm/emscripten_websocket_test
 import avm/esp32_test
+import avm/gpio_int_test
 import avm/gpio_unix_test
+import avm/http_workflow_test
 import avm/json_full_test
 import avm/log
 import avm/negative_test
@@ -17,6 +19,7 @@ import avm/portable_test
 import avm/posix_test
 import avm/pubsub_test
 import avm/stm32_test
+import avm/uart_loopback_test
 import gleam/erlang/atom.{type Atom}
 import gleam/list
 
@@ -48,6 +51,8 @@ fn run_all() -> Result(Nil, List(Failure)) {
       #("posix", posix_test.run),
       #("gpio_unix", gpio_unix_test.run),
       #("pubsub", pubsub_test.run),
+      #("http_workflow", http_workflow_test.run),
+      #("uart_loopback", uart_loopback_test.run),
       #("bulk", bulk_cover_test.run),
       #("negative_esp", negative_test.run_on_unix),
       #("negative_emscripten", negative_test.run_off_emscripten),
@@ -58,6 +63,7 @@ fn run_all() -> Result(Nil, List(Failure)) {
       #("crypto", crypto_full_test.run),
       #("json", json_full_test.run),
       #("esp32", esp32_test.run),
+      #("gpio_int", gpio_int_test.run),
       #("bulk", bulk_cover_test.run),
       #("negative_emscripten", negative_test.run_off_emscripten),
       #("negative_pico", negative_test.run_off_pico),

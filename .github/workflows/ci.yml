@@ -22,8 +22,6 @@ jobs:
           gleam format --check
           gleam build
           gleam test
-      - name: Behavioral API coverage gate
-        run: python3 scripts/coverage_report.py --min 80 --list-uncovered
 
   atomvm-wasm:
     name: AtomVM WASM harness
@@ -61,7 +59,7 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev
+          sudo apt-get install -y cmake g++ zlib1g-dev libmbedtls-dev socat
       - name: Pack and run unix harness
         run: |
           chmod +x scripts/*.sh

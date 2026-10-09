@@ -10,4 +10,3 @@ erl_crash.dump
 .DS_Store
 scripts/pico_rp2040js/node_modules/
 scripts/pico_rp2040js/package-lock.json
-scripts/coverage_report.py

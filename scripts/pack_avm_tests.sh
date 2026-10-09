@@ -41,7 +41,9 @@ echo "Compiling Gleam project + tests…"
 
 EBIN="$ROOT/build/dev/erlang/atomvm_gleam/ebin"
 mkdir -p "$EBIN"
-erlc -o "$EBIN" "$SCRIPT_DIR/avm_test_env_ffi.erl"
+erlc -o "$EBIN" \
+  "$SCRIPT_DIR/avm_test_env_ffi.erl" \
+  "$SCRIPT_DIR/avm_http_test_handler.erl"
 
 STDLIB_EBIN="$ROOT/build/dev/erlang/gleam_stdlib/ebin"
 ERLANG_EBIN="$ROOT/build/dev/erlang/gleam_erlang/ebin"
@@ -53,6 +55,7 @@ LIST_FILE="$(mktemp)"
   find "$EBIN" -name 'avm@*.beam' ! -name 'avm@runner.beam'
   find "$EBIN" -name 'atomvm_gleam*.beam' ! -name 'atomvm_gleam_test.beam'
   find "$EBIN" -name 'avm_test_env_ffi.beam'
+  find "$EBIN" -name 'avm_http_test_handler.beam'
   find "$STDLIB_EBIN" -name '*.beam'
   find "$ERLANG_EBIN" -name '*.beam'
 } >"$LIST_FILE"

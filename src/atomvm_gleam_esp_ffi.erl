@@ -234,10 +234,10 @@ timer_get_time() ->
     end.
 
 sleep_enable_gpio_wakeup() ->
-    wrap_ok_or_error(esp:sleep_enable_gpio_wakeup()).
+    try_ok_or_error(fun() -> esp:sleep_enable_gpio_wakeup() end).
 
 light_sleep() ->
-    wrap_ok_or_error(esp:light_sleep()).
+    try_ok_or_error(fun() -> esp:light_sleep() end).
 
 deep_sleep() ->
     esp:deep_sleep(),
@@ -260,25 +260,25 @@ sleep_get_wakeup_cause() ->
     end.
 
 sleep_enable_ext0_wakeup(Pin, Level) ->
-    wrap_ok_or_error(esp:sleep_enable_ext0_wakeup(Pin, Level)).
+    try_ok_or_error(fun() -> esp:sleep_enable_ext0_wakeup(Pin, Level) end).
 
 sleep_enable_ext1_wakeup(Mask, Mode) ->
-    wrap_ok_or_error(esp:sleep_enable_ext1_wakeup(Mask, Mode)).
+    try_ok_or_error(fun() -> esp:sleep_enable_ext1_wakeup(Mask, Mode) end).
 
 sleep_enable_ext1_wakeup_io(Mask, Mode) ->
-    wrap_ok_or_error(esp:sleep_enable_ext1_wakeup_io(Mask, Mode)).
+    try_ok_or_error(fun() -> esp:sleep_enable_ext1_wakeup_io(Mask, Mode) end).
 
 sleep_disable_ext1_wakeup_io(Mask) ->
-    wrap_ok_or_error(esp:sleep_disable_ext1_wakeup_io(Mask)).
+    try_ok_or_error(fun() -> esp:sleep_disable_ext1_wakeup_io(Mask) end).
 
 deep_sleep_enable_gpio_wakeup(Mask, Mode) ->
-    wrap_ok_or_error(esp:deep_sleep_enable_gpio_wakeup(Mask, Mode)).
+    try_ok_or_error(fun() -> esp:deep_sleep_enable_gpio_wakeup(Mask, Mode) end).
 
 sleep_enable_ulp_wakeup() ->
-    wrap_ok_or_error(esp:sleep_enable_ulp_wakeup()).
+    try_ok_or_error(fun() -> esp:sleep_enable_ulp_wakeup() end).
 
 sleep_enable_timer_wakeup(SleepUS) ->
-    wrap_ok_or_error(esp:sleep_enable_timer_wakeup(SleepUS)).
+    try_ok_or_error(fun() -> esp:sleep_enable_timer_wakeup(SleepUS) end).
 
 partition_list() ->
     try
@@ -313,13 +313,13 @@ partition_mmap(Id, Offset, Size) ->
     end.
 
 partition_write(Id, Offset, Data) ->
-    wrap_ok_or_error(esp:partition_write(Id, Offset, Data)).
+    try_ok_or_error(fun() -> esp:partition_write(Id, Offset, Data) end).
 
 partition_erase_range(Id, Offset) ->
-    wrap_ok_or_error(esp:partition_erase_range(Id, Offset)).
+    try_ok_or_error(fun() -> esp:partition_erase_range(Id, Offset) end).
 
 partition_erase_range_size(Id, Offset, Size) ->
-    wrap_ok_or_error(esp:partition_erase_range(Id, Offset, Size)).
+    try_ok_or_error(fun() -> esp:partition_erase_range(Id, Offset, Size) end).
 
 rtc_slow_get_binary() ->
     try
@@ -366,34 +366,45 @@ mount(Source, Target, Filesystem, Options) ->
     end.
 
 umount(Mounted) ->
-    wrap_ok_or_error(esp:umount(Mounted)).
+    try_ok_or_error(fun() -> esp:umount(Mounted) end).
 
 task_wdt_init(TimeoutMS, IdleCoreMask, TriggerPanic) ->
-    wrap_ok_or_error(esp:task_wdt_init({TimeoutMS, IdleCoreMask, TriggerPanic})).
+    try_ok_or_error(fun() -> esp:task_wdt_init({TimeoutMS, IdleCoreMask, TriggerPanic}) end).
 
 task_wdt_reconfigure(TimeoutMS, IdleCoreMask, TriggerPanic) ->
-    wrap_ok_or_error(
+    try_ok_or_error(fun() ->
         esp:task_wdt_reconfigure({TimeoutMS, IdleCoreMask, TriggerPanic})
-    ).
+    end).
 
 task_wdt_deinit() ->
-    wrap_ok_or_error(esp:task_wdt_deinit()).
+    try_ok_or_error(fun() -> esp:task_wdt_deinit() end).
 
 task_wdt_add_user(Username) ->
-    case esp:task_wdt_add_user(Username) of
-        {ok, Handle} ->
-            {ok, Handle};
-        {error, Reason} ->
-            wrap_reason(Reason);
-        error ->
+    try
+        case esp:task_wdt_add_user(Username) of
+            {ok, Handle} ->
+                {ok, Handle};
+            {error, Reason} ->
+                wrap_reason(Reason);
+            error ->
+                {error, failed}
+        end
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        _:_ ->
             {error, failed}
     end.
 
 task_wdt_reset_user(Handle) ->
-    wrap_ok_or_error(esp:task_wdt_reset_user(Handle)).
+    try_ok_or_error(fun() -> esp:task_wdt_reset_user(Handle) end).
 
 task_wdt_delete_user(Handle) ->
-    wrap_ok_or_error(esp:task_wdt_delete_user(Handle)).
+    try_ok_or_error(fun() -> esp:task_wdt_delete_user(Handle) end).
 
 wrap_partition({Id, Type, Subtype, Address, Size, _Props}) ->
     {partition, Id, Type, Subtype, Address, Size};
@@ -434,6 +445,22 @@ mount_option({spi_host, Host}) when is_atom(Host) ->
     {spi_host, Host};
 mount_option(Opt) ->
     Opt.
+
+try_ok_or_error(Fun) when is_function(Fun, 0) ->
+    try
+        wrap_ok_or_error(Fun())
+    catch
+        error:undef ->
+            {error, not_supported};
+        error:badarg ->
+            {error, badarg};
+        error:Thrown when is_atom(Thrown) ->
+            wrap_reason(Thrown);
+        error:{error, Thrown} ->
+            wrap_reason(Thrown);
+        _:_ ->
+            {error, failed}
+    end.
 
 wrap_ok_or_error(ok) ->
     {ok, nil};

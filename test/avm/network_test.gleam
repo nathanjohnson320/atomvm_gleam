@@ -1,8 +1,8 @@
-//// Network entrypoints — ESP32 owns Wi‑Fi; elsewhere must be NotSupported.
-////
-//// QEMU has no radio and `network.start` can hang — SKIP without cover tags
-//// unless `AVM_GLEAM_INTEGRATION=1` (real board). Live path requires Ok for
-//// start/stop/scan entrypoints; wait helpers may Timeout.
+//// Network / Wi‑Fi — owned on ESP32 and Pico-W (avm_network + radio).
+//// STM32 / unix / non-W Pico / WASM: no radio HAL → NotSupported or no-radio
+//// runtime. Emulators hang on `start` → SKIP unless `AVM_GLEAM_INTEGRATION=1`
+//// on a board with Wi‑Fi (ESP or Pico-W). Creds: `AVM_GLEAM_WIFI_SSID` /
+//// `AVM_GLEAM_WIFI_PSK` (defaults used only for API smoke when unset).
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/network
@@ -17,8 +17,9 @@ import gleam/string
 pub fn run() -> Result(Nil, Failure) {
   case atomvm.platform() {
     atomvm.Emscripten -> check.ok()
-    atomvm.Esp32 -> network_esp32()
-    _ -> network_off_platform()
+    atomvm.Esp32 -> network_wifi_owned("ESP32 QEMU hang on start")
+    atomvm.Pico -> network_wifi_owned("needs Pico-W firmware + radio")
+    atomvm.GenericUnix | atomvm.Stm32 -> network_off_platform()
   }
 }
 
@@ -55,7 +56,7 @@ fn network_wait(
 }
 
 fn network_off_platform() -> Result(Nil, Failure) {
-  // atomvmlib ships `network` on unix, but there is no Wi‑Fi STA — expect
+  // Module may be packed (unix) but there is no Wi‑Fi STA — expect
   // NotSupported / undef, or a no-radio runtime error. Ok(connected) would be wrong.
   case network.sta_status() {
     Error(reason) ->
@@ -63,35 +64,43 @@ fn network_off_platform() -> Result(Nil, Failure) {
         True -> check.cover_not_supported("network.sta_status")
         False ->
           check.fail(
-            "network.sta_status: unexpected off-ESP error: "
+            "network.sta_status: unexpected off-radio error: "
             <> network.error_to_string(reason),
           )
       }
     Ok(status) ->
       check.fail(
-        "network.sta_status: unexpected Ok off ESP ("
+        "network.sta_status: unexpected Ok without radio ("
         <> network.sta_status_to_string(status)
         <> ")",
       )
   }
 }
 
-fn network_esp32() -> Result(Nil, Failure) {
+fn network_wifi_owned(skip_why: String) -> Result(Nil, Failure) {
   case integration.env_flag("AVM_GLEAM_INTEGRATION") {
     False ->
       integration.skip(
-        "network.* (QEMU hang on start; set AVM_GLEAM_INTEGRATION=1)",
+        "network.* (" <> skip_why <> "; set AVM_GLEAM_INTEGRATION=1)",
       )
-    True -> network_esp32_live()
+    True -> network_wifi_live()
   }
 }
 
-fn network_esp32_live() -> Result(Nil, Failure) {
+fn wifi_ssid_psk() -> #(String, String) {
+  case integration.wifi_creds() {
+    option.Some(#(ssid, psk)) -> #(ssid, psk)
+    option.None -> #("avm_gleam_test", "password")
+  }
+}
+
+fn network_wifi_live() -> Result(Nil, Failure) {
+  let #(ssid, psk) = wifi_ssid_psk()
   let sta =
     network.StaConfig(
       managed: True,
-      ssid: option.Some("avm_gleam_test"),
-      psk: option.Some("password"),
+      ssid: option.Some(ssid),
+      psk: option.Some(psk),
       dhcp_hostname: option.None,
       notify: process.self(),
     )
@@ -132,7 +141,7 @@ fn network_esp32_live() -> Result(Nil, Failure) {
   ))
   use _ <- result.try(expect.ok_or_runtime(
     "network.sta_connect_to",
-    network.sta_connect_to("avm_gleam_test", "password"),
+    network.sta_connect_to(ssid, psk),
     network_runtime,
     network.error_to_string,
   ))
@@ -164,14 +173,11 @@ fn network_esp32_live() -> Result(Nil, Failure) {
   ))
   use _ <- result.try(network_wait(
     "network.wait_for_sta_config",
-    network.wait_for_sta_config(
-      option.Some("avm_gleam_test"),
-      option.Some("password"),
-    ),
+    network.wait_for_sta_config(option.Some(ssid), option.Some(psk)),
   ))
   use _ <- result.try(network_wait(
     "network.wait_for_sta",
-    network.wait_for_sta("avm_gleam_test", "password", 10),
+    network.wait_for_sta(ssid, psk, 10),
   ))
   use _ <- result.try(network_wait(
     "network.wait_for_ap",

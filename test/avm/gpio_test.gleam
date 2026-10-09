@@ -194,7 +194,9 @@ fn gpio_port_pico() -> Result(Nil, Failure) {
   case gpio.set_direction(g, pin, gpio.Output) {
     Error(gpio.NotSupported) -> {
       let _ = gpio.close(g)
-      integration.skip("rp2040js port direction (gpio_hal expects Ok on hardware)")
+      integration.skip(
+        "rp2040js port direction (gpio_hal expects Ok on hardware)",
+      )
     }
     Error(reason) -> {
       let _ = gpio.close(g)

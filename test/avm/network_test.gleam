@@ -1,4 +1,4 @@
-//// Network / Wi‑Fi — owned on ESP32 and Pico-W (avm_network + radio).
+//// Network / Wi‑Fi - owned on ESP32 and Pico-W (avm_network + radio).
 //// STM32 / unix / non-W Pico / WASM: no radio HAL → NotSupported or no-radio
 //// runtime. Emulators hang on `start` → SKIP unless `AVM_GLEAM_INTEGRATION=1`
 //// on a board with Wi‑Fi (ESP or Pico-W). Creds: `AVM_GLEAM_WIFI_SSID` /
@@ -56,7 +56,7 @@ fn network_wait(
 }
 
 fn network_off_platform() -> Result(Nil, Failure) {
-  // Module may be packed (unix) but there is no Wi‑Fi STA — expect
+  // Module may be packed (unix) but there is no Wi‑Fi STA - expect
   // NotSupported / undef, or a no-radio runtime error. Ok(connected) would be wrong.
   case network.sta_status() {
     Error(reason) ->

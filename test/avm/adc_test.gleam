@@ -1,4 +1,4 @@
-//// ADC convenience API — ESP32 owns it. `start` / `stop` must Ok on ESP32;
+//// ADC convenience API - ESP32 owns it. `start` / `stop` must Ok on ESP32;
 //// `read` hangs under QEMU → SKIP unless INTEGRATION. Off-platform: NotSupported.
 
 import atomvm_gleam/adc

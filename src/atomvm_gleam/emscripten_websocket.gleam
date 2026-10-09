@@ -17,10 +17,10 @@
 ////
 //// The controlling process receives these mailbox messages (from the NIF):
 ////
-//// - `{websocket_open, Websocket}` — connection opened
-//// - `{websocket, Websocket, Data}` — text or binary payload (`Data` is a binary)
-//// - `{websocket_error, Websocket}` — error event
-//// - `{websocket_close, Websocket, {WasClean, Code, Reason}}` — closed;
+//// - `{websocket_open, Websocket}` - connection opened
+//// - `{websocket, Websocket, Data}` - text or binary payload (`Data` is a binary)
+//// - `{websocket_error, Websocket}` - error event
+//// - `{websocket_close, Websocket, {WasClean, Code, Reason}}` - closed;
 ////   `WasClean` is a boolean, `Code` an integer status, `Reason` a binary
 ////
 //// Check `atomvm.platform() == Emscripten` (or call [`is_supported`](#is_supported))

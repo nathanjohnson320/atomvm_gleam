@@ -9,7 +9,7 @@
     stop_socat/1
 ]).
 
-%% Soft-call atomvm:random/0 — some builds omit the NIF.
+%% Soft-call atomvm:random/0 - some builds omit the NIF.
 try_random() ->
     try
         {ok, atomvm:random()}

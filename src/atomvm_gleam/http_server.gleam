@@ -1,7 +1,7 @@
 /// Thin Gleam wrappers for AtomVM `http_server` (0.7).
 ///
-/// Source: [`http_server.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
-/// Edoc: [Module http_server](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/http_server.html).
+/// Source / docs: [`http_server.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/http_server.erl).
+/// There is no release-0.7 Sphinx/edoc page; prefer GitHub over `/latest/.../eavmlib`.
 ///
 /// ## Router callback expectations
 ///
@@ -20,9 +20,9 @@
 ///
 /// with Erlang terms:
 ///
-/// - `Method` — charlist, e.g. `"GET"`
-/// - `PathTokens` — list of path segments (charlists) after splitting on `/`
-/// - `Conn` — proplist (`method`, `uri`, `http_version`, `header`, `body_chunk`, `socket`, …)
+/// - `Method` - charlist, e.g. `"GET"`
+/// - `PathTokens` - list of path segments (charlists) after splitting on `/`
+/// - `Conn` - proplist (`method`, `uri`, `http_version`, `header`, `body_chunk`, `socket`, …)
 ///
 /// Handlers typically finish with [`reply`](#reply) / [`reply_with_headers`](#reply_with_headers).
 ///

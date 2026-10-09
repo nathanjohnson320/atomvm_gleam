@@ -1,10 +1,11 @@
-/// Pico / RP2-specific AtomVM APIs (`pico` module).
-///
-/// CYW43 GPIO helpers are **Pico-W only**. The onboard LED is typically
-/// CYW43 GPIO `0`.
-///
-/// Source: [`libs/avm_rp2/src/pico.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
-/// Docs: [Module pico](https://www.atomvm.net/doc/main/apidocs/erlang/eavmlib/pico.html).
+//// Pico / RP2-specific AtomVM APIs (`pico` module).
+////
+//// CYW43 GPIO helpers are **Pico-W only**. The onboard LED is typically
+//// CYW43 GPIO `0`.
+////
+//// Source: [`libs/avm_rp2/src/pico.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+//// Docs: [Module pico](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/pico.erl).
+
 /// Errors from Pico NIFs and helpers.
 ///
 /// Known reason atoms are Gleam constructors (so `{error, not_supported}` is
@@ -27,17 +28,17 @@ pub type Level {
   PinLow
 }
 
-/// Erlang `calendar:date()` — `{Year, Month, Day}`.
+/// Erlang `calendar:date()` - `{Year, Month, Day}`.
 pub type Date {
   Date(year: Int, month: Int, day: Int)
 }
 
-/// Erlang `calendar:time()` — `{Hour, Minute, Second}`.
+/// Erlang `calendar:time()` - `{Hour, Minute, Second}`.
 pub type TimeOfDay {
   TimeOfDay(hour: Int, minute: Int, second: Int)
 }
 
-/// Erlang `calendar:datetime()` — `{{Year, Month, Day}, {Hour, Minute, Second}}`.
+/// Erlang `calendar:datetime()` - `{{Year, Month, Day}, {Hour, Minute, Second}}`.
 pub type DateTime {
   DateTime(date: Date, time: TimeOfDay)
 }

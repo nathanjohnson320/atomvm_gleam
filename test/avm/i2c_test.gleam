@@ -1,4 +1,4 @@
-//// I2C — owned on ESP32, Pico (RP2), and STM32 (AtomVM 0.7).
+//// I2C - owned on ESP32, Pico (RP2), and STM32 (AtomVM 0.7).
 ////
 //// ESP open hangs under QEMU → SKIP unless `AVM_GLEAM_INTEGRATION=1`.
 //// Pico / STM32 / live ESP: `open`/`close` must Ok; transfers may

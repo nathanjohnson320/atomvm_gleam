@@ -1,4 +1,4 @@
-//// ESP32 suite — peripherals, buses, network entrypoints.
+//// ESP32 suite - peripherals, buses, network entrypoints.
 
 import atomvm_gleam/adc
 import atomvm_gleam/esp
@@ -43,7 +43,7 @@ fn esp_runtime(e: esp.Error) -> Bool {
   }
 }
 
-/// Wakeup-source config varies by chip / QEMU build — NotSupported allowed.
+/// Wakeup-source config varies by chip / QEMU build - NotSupported allowed.
 fn esp_wakeup_optional(e: esp.Error) -> Bool {
   case e {
     esp.NotSupported
@@ -66,7 +66,7 @@ fn freq_and_timer() -> Result(Nil, Failure) {
 }
 
 fn reset_and_wakeup() -> Result(Nil, Failure) {
-  // QEMU / warm restarts may report SW / other reasons — any known variant is fine.
+  // QEMU / warm restarts may report SW / other reasons - any known variant is fine.
   let _ = esp.reset_reason()
   use _ <- result.try(check.cover("esp.reset_reason", check.ok()))
   use _ <- result.try(check.cover_ok(
@@ -154,7 +154,7 @@ fn nvs_roundtrip() -> Result(Nil, Failure) {
     esp_runtime,
     esp.error_to_string,
   ))
-  // nvs_reformat is destructive — skip in CI (not tagged).
+  // nvs_reformat is destructive - skip in CI (not tagged).
   Ok(Nil)
 }
 

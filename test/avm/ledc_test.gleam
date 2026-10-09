@@ -1,5 +1,5 @@
-//// LEDC fade APIs — ESP32 owns LEDC. Fade calls can panic under QEMU
-//// (LoadProhibited) — SKIP unless INTEGRATION. Off-platform: NotSupported.
+//// LEDC fade APIs - ESP32 owns LEDC. Fade calls can panic under QEMU
+//// (LoadProhibited) - SKIP unless INTEGRATION. Off-platform: NotSupported.
 //// Basic timer/channel smoke lives in `esp32_test` (hard Ok).
 
 import atomvm_gleam/atomvm

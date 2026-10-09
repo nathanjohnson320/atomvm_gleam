@@ -1,7 +1,7 @@
 /// Wi-Fi, AP, SNTP, and mDNS config wrappers for AtomVM's `network` module (0.7).
 ///
 /// Prefer the [Network Programming Guide (0.7)](https://doc.atomvm.org/release-0.7/network-programming-guide.html)
-/// — especially [managed mode](https://doc.atomvm.org/release-0.7/network-programming-guide.html#managed-mode),
+/// - especially [managed mode](https://doc.atomvm.org/release-0.7/network-programming-guide.html#managed-mode),
 /// [AP mode](https://doc.atomvm.org/release-0.7/network-programming-guide.html#ap-mode),
 /// [`sta_connect`](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-connect),
 /// [`wifi_scan`](https://doc.atomvm.org/release-0.7/network-programming-guide.html#wifi-scan),
@@ -132,7 +132,7 @@ pub fn sta_status_to_string(status: StaStatus) -> String {
 ///
 /// Compatibility wrapper around [`start_with`](#start_with) with no AP or mDNS.
 ///
-/// See [`network:start/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/network.html#start-1)
+/// See [`network.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/network.erl)
 /// and the [0.7 guide](https://doc.atomvm.org/release-0.7/network-programming-guide.html).
 pub fn start(sta: StaConfig, sntp: Option(SntpConfig)) -> Result(Nil, Error) {
   start_with(option.Some(sta), option.None, sntp, option.None)
@@ -311,6 +311,8 @@ pub fn sta_connect() -> Result(Nil, Error)
 pub fn sta_connect_to(ssid: String, psk: String) -> Result(Nil, Error)
 
 /// Disconnect from the current access point.
+///
+/// See [sta_disconnect](https://doc.atomvm.org/release-0.7/network-programming-guide.html#sta-disconnect).
 @external(erlang, "atomvm_gleam_network_ffi", "sta_disconnect")
 pub fn sta_disconnect() -> Result(Nil, Error)
 
@@ -413,6 +415,8 @@ pub fn wait_for_ap_timeout(timeout_ms: Int) -> Result(Nil, Error) {
 pub fn wait_for_ap_default() -> Result(Nil, Error)
 
 /// Stop the network interface.
+///
+/// See [Stopping the Network](https://doc.atomvm.org/release-0.7/network-programming-guide.html#stopping-the-network).
 @external(erlang, "atomvm_gleam_network_ffi", "stop")
 pub fn stop() -> Result(Nil, Error)
 

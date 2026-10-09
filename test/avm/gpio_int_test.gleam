@@ -1,8 +1,8 @@
-//// GPIO interrupt path — set_int → trigger → `{gpio_interrupt, Pin}`.
+//// GPIO interrupt path - set_int → trigger → `{gpio_interrupt, Pin}`.
 ////
 //// ESP32 only (unix sysfs GPIO has no interrupt port). With
 //// `AVM_GLEAM_GPIO_OUT` / `AVM_GLEAM_GPIO_IN` wired, asserts a Rising edge
-//// message. Without a peer, only arms/disarms Rising (no level-high — that
+//// message. Without a peer, only arms/disarms Rising (no level-high - that
 //// floods IRQs under QEMU). Missing message → `SKIP` unless
 //// `AVM_GLEAM_INTEGRATION=1`.
 

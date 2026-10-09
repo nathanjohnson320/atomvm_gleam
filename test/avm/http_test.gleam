@@ -1,9 +1,9 @@
 //// HTTP client connect smoke. Full request/stream/recv path is
 //// `http_workflow_test` (GenericUnix). Here we only prove `connect` is
-//// available on platforms that own TCP/HTTP — never tag uncalled APIs.
+//// available on platforms that own TCP/HTTP - never tag uncalled APIs.
 ////
 //// Pico / Node WASM: calling `http.connect` can **abort the VM** (not return
-//// Error). That is a harness limit, not soft coverage — we no-op / SKIP rather
+//// Error). That is a harness limit, not soft coverage - we no-op / SKIP rather
 //// than risk killing the suite. Prove connect on unix / ESP / STM instead.
 
 import atomvm_gleam/atomvm
@@ -39,7 +39,7 @@ fn http_ns(e: http.Error) -> Bool {
 }
 
 fn http_connect_owned() -> Result(Nil, Failure) {
-  // Port 9 (discard) — connect may Ok or fail with a runtime network error;
+  // Port 9 (discard) - connect may Ok or fail with a runtime network error;
   // NotSupported means the module is missing on an owning platform → fail.
   case http.connect(http.Http, "127.0.0.1", 9, False, option.None) {
     Ok(conn) -> {

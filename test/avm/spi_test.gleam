@@ -1,4 +1,4 @@
-//// SPI — owned on ESP32, Pico (RP2), and STM32 (AtomVM 0.7).
+//// SPI - owned on ESP32, Pico (RP2), and STM32 (AtomVM 0.7).
 ////
 //// ESP open hangs under QEMU → SKIP unless `AVM_GLEAM_INTEGRATION=1`.
 //// Pico / STM32 / live ESP: `open`/`close` must Ok. Unix / WASM: NotSupported.
@@ -42,7 +42,7 @@ fn params() -> spi.Params {
         ),
         device_config: [],
       )
-    // RP2 peripheral 0|1; STM32 1..6 — digits-only string → int in FFI.
+    // RP2 peripheral 0|1; STM32 1..6 - digits-only string → int in FFI.
     atomvm.Pico ->
       spi.Params(
         bus_config: spi.BusConfig(

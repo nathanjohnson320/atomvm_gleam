@@ -1,4 +1,4 @@
-//// STM32 suite — port GPIO with `{Bank, Pin}` (not ESP-style pin numbers).
+//// STM32 suite - port GPIO with `{Bank, Pin}` (not ESP-style pin numbers).
 
 import atomvm_gleam/gpio
 import avm/check.{type Failure}
@@ -11,7 +11,7 @@ pub fn run() -> Result(Nil, Failure) {
     gpio.start(),
     gpio.error_to_string,
   ))
-  // PB7 — programmers guide example; BankPin encodes as Erlang `{b, 7}`.
+  // PB7 - programmers guide example; BankPin encodes as Erlang `{b, 7}`.
   let pin = gpio.bank(gpio.B, 7)
   use _ <- result.try(expect.must_ok(
     "gpio.set_direction",

@@ -13,15 +13,16 @@
 /// {pub, Topic, From, Term}
 /// ```
 ///
-/// - `Topic` — the published topic term
-/// - `From` — pid of the process that called [`publish`](#publish)
-/// - `Term` — the published payload
+/// - `Topic` - the published topic term
+/// - `From` - pid of the process that called [`publish`](#publish)
+/// - `Term` - the published payload
 ///
 /// Topics are Erlang terms upstream (often lists of atoms for MQTT-style
 /// patterns with `'+'` / `'#'`). Prefer simple atoms, binaries, ints, or
 /// lists of those when calling from Gleam.
 ///
 /// Source: [`avm_pubsub.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/eavmlib/src/avm_pubsub.erl).
+/// Docs: [Module avm_pubsub](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/avm_pubsub.html).
 import gleam/erlang/process.{type Pid}
 
 /// Opaque handle for a running `avm_pubsub` gen_server (`pid()`).

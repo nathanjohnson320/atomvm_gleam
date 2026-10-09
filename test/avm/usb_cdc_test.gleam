@@ -1,5 +1,5 @@
-//// USB CDC — owned on ESP32 / Pico / STM32 (AtomVM 0.7). Open can hang under
-//// QEMU / rp2040js — SKIP unless INTEGRATION (emu cannot prove ownership).
+//// USB CDC - owned on ESP32 / Pico / STM32 (AtomVM 0.7). Open can hang under
+//// QEMU / rp2040js - SKIP unless INTEGRATION (emu cannot prove ownership).
 //// Live: open_default/write/close must Ok; short reads may fail.
 
 import atomvm_gleam/atomvm
@@ -13,7 +13,7 @@ pub fn run() -> Result(Nil, Failure) {
   case atomvm.platform() {
     atomvm.Esp32 | atomvm.Pico | atomvm.Stm32 -> usb_cdc_mcu()
     // Missing `usb_cdc` beam aborts (undef) rather than returning NotSupported
-    // from the current FFI — do not call off MCU.
+    // from the current FFI - do not call off MCU.
     _ -> check.ok()
   }
 }

@@ -25,7 +25,7 @@ fn platform_smoke() -> Result(Nil, Failure) {
 }
 
 fn random_smoke() -> Result(Nil, Failure) {
-  // atomvm:random/0 may be undef on some unix builds — catch via FFI.
+  // atomvm:random/0 may be undef on some unix builds - catch via FFI.
   case try_random() {
     Ok(_n) -> check.cover("atomvm.random", check.ok())
     Error(_) -> check.cover_not_supported("atomvm.random")

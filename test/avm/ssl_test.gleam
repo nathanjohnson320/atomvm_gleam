@@ -1,7 +1,7 @@
 //// SSL connect smoke where mbedtls is expected (unix, ESP32, Pico, STM32).
 //// `connect` must not return NotSupported; connection refused / handshake
 //// failure counts as exercising the FFI. send/recv/close only when a socket
-//// opens. Pico under rp2040js: TCP can abort the VM — SKIP unless INTEGRATION
+//// opens. Pico under rp2040js: TCP can abort the VM - SKIP unless INTEGRATION
 //// (same harness limit as http_test). WASM: no-op.
 
 import atomvm_gleam/atomvm

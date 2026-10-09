@@ -1,7 +1,7 @@
 /// Typed Gleam wrappers for AtomVM's LED Controller (PWM) NIFs.
 ///
 /// Source: [`libs/avm_esp32/src/ledc.erl`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
-/// Edoc fallback: [Module ledc](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html).
+/// Edoc fallback: [Module ledc](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 import gleam/int
 
 /// Errors from the LEDC NIFs.
@@ -20,7 +20,7 @@ pub type Error {
 
 /// LEDC speed mode. AtomVM uses `0` for high speed and `1` for low speed.
 ///
-/// See [speed_mode()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#speed-mode).
+/// See [speed_mode()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub type SpeedMode {
   HighSpeed
   LowSpeed
@@ -28,7 +28,7 @@ pub type SpeedMode {
 
 /// Timer configuration for [`timer_config`](#timer_config).
 ///
-/// See [timer_config()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#timer-config).
+/// See [timer_config()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub type TimerConfig {
   TimerConfig(
     duty_resolution: Int,
@@ -40,7 +40,7 @@ pub type TimerConfig {
 
 /// Channel configuration for [`channel_config`](#channel_config).
 ///
-/// See [channel_config()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#channel-config).
+/// See [channel_config()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub type ChannelConfig {
   ChannelConfig(
     channel: Int,
@@ -66,21 +66,21 @@ pub fn error_to_string(error: Error) -> String {
 
 /// High-speed LEDC mode (`0`).
 ///
-/// See [speed_mode()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#speed-mode).
+/// See [speed_mode()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub fn high_speed_mode() -> SpeedMode {
   HighSpeed
 }
 
 /// Low-speed LEDC mode (`1`). Prefer this on ESP32-S3 backlight PWM.
 ///
-/// See [speed_mode()](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#speed-mode).
+/// See [speed_mode()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub fn low_speed_mode() -> SpeedMode {
   LowSpeed
 }
 
 /// Configure an LEDC timer.
 ///
-/// See [`ledc:timer_config/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#timer-config-1).
+/// See [`ledc:timer_config/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub fn timer_config(config: TimerConfig) -> Result(Nil, Error) {
   let TimerConfig(duty_resolution:, freq_hz:, speed_mode:, timer_num:) = config
   timer_config_ffi(duty_resolution, freq_hz, speed_mode, timer_num)
@@ -88,7 +88,7 @@ pub fn timer_config(config: TimerConfig) -> Result(Nil, Error) {
 
 /// Configure an LEDC channel.
 ///
-/// See [`ledc:channel_config/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#channel-config-1).
+/// See [`ledc:channel_config/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 pub fn channel_config(config: ChannelConfig) -> Result(Nil, Error) {
   let ChannelConfig(
     channel:,
@@ -103,7 +103,7 @@ pub fn channel_config(config: ChannelConfig) -> Result(Nil, Error) {
 
 /// Set channel duty (does not apply until [`update_duty`](#update_duty)).
 ///
-/// See [`ledc:set_duty/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-duty-3).
+/// See [`ledc:set_duty/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "set_duty")
 pub fn set_duty(
   speed_mode: SpeedMode,
@@ -113,25 +113,25 @@ pub fn set_duty(
 
 /// Apply pending duty changes for a channel.
 ///
-/// See [`ledc:update_duty/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#update-duty-2).
+/// See [`ledc:update_duty/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "update_duty")
 pub fn update_duty(speed_mode: SpeedMode, channel: Int) -> Result(Nil, Error)
 
 /// Install the LEDC fade function (occupies the LEDC interrupt).
 ///
-/// See [`ledc:fade_func_install/1`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-func-install-1).
+/// See [`ledc:fade_func_install/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "fade_func_install")
 pub fn fade_func_install(flags: Int) -> Result(Nil, Error)
 
 /// Uninstall the LEDC fade function.
 ///
-/// See [`ledc:fade_func_uninstall/0`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-func-uninstall-0).
+/// See [`ledc:fade_func_uninstall/0`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "fade_func_uninstall")
 pub fn fade_func_uninstall() -> Result(Nil, Error)
 
 /// Configure a time-limited fade. Call [`fade_start`](#fade_start) afterward.
 ///
-/// See [`ledc:set_fade_with_time/4`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-fade-with-time-4).
+/// See [`ledc:set_fade_with_time/4`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_with_time")
 pub fn set_fade_with_time(
   speed_mode: SpeedMode,
@@ -142,7 +142,7 @@ pub fn set_fade_with_time(
 
 /// Configure a step-based fade. Call [`fade_start`](#fade_start) afterward.
 ///
-/// See [`ledc:set_fade_with_step/5`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-fade-with-step-5).
+/// See [`ledc:set_fade_with_step/5`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "set_fade_with_step")
 pub fn set_fade_with_step(
   speed_mode: SpeedMode,
@@ -179,7 +179,7 @@ pub fn set_fade_step_and_start(
 
 /// Start a previously configured fade.
 ///
-/// See [`ledc:fade_start/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#fade-start-3).
+/// See [`ledc:fade_start/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "fade_start")
 pub fn fade_start(
   speed_mode: SpeedMode,
@@ -206,19 +206,19 @@ pub fn set_duty_and_update(
 
 /// Read the current duty for a channel.
 ///
-/// See [`ledc:get_duty/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#get-duty-2).
+/// See [`ledc:get_duty/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "get_duty")
 pub fn get_duty(speed_mode: SpeedMode, channel: Int) -> Result(Int, Error)
 
 /// Read the current timer frequency in Hz.
 ///
-/// See [`ledc:get_freq/2`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#get-freq-2).
+/// See [`ledc:get_freq/2`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "get_freq")
 pub fn get_freq(speed_mode: SpeedMode, timer_num: Int) -> Result(Int, Error)
 
 /// Set the timer frequency in Hz.
 ///
-/// See [`ledc:set_freq/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#set-freq-3).
+/// See [`ledc:set_freq/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "set_freq")
 pub fn set_freq(
   speed_mode: SpeedMode,
@@ -228,7 +228,7 @@ pub fn set_freq(
 
 /// Stop LEDC output on a channel and set the idle level.
 ///
-/// See [`ledc:stop/3`](https://doc.atomvm.org/latest/apidocs/erlang/eavmlib/ledc.html#stop-3).
+/// See [`ledc:stop/3`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_esp32/src/ledc.erl).
 @external(erlang, "atomvm_gleam_ledc_ffi", "stop")
 pub fn stop(
   speed_mode: SpeedMode,

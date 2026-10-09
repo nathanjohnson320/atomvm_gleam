@@ -6,12 +6,12 @@
 ////
 //// ## Two write styles
 ////
-//// **Register write** — `write_bytes/4` (and `read_bytes/4`) are one-shot
+//// **Register write** - `write_bytes/4` (and `read_bytes/4`) are one-shot
 //// transactions: they address a device, send a register/pointer byte, then
 //// write or read a payload. Do **not** wrap them in
 //// `begin_transmission` / `end_transmission`.
 ////
-//// **Transmission framing** — `begin_transmission` → `write_byte` /
+//// **Transmission framing** - `begin_transmission` → `write_byte` /
 //// `write_transmission_bytes` → `end_transmission` builds a multi-byte write
 //// by hand (useful when the first byte is not a simple register pointer, or
 //// when streaming several bytes in one stop-bit-framed message).

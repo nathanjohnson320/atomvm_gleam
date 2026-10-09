@@ -1,4 +1,4 @@
-//// Pico / RP2 suite — hard gpio + rtc; CYW43 NotSupported on non-W emu.
+//// Pico / RP2 suite - hard gpio + rtc; CYW43 NotSupported on non-W emu.
 
 import atomvm_gleam/gpio
 import atomvm_gleam/pico

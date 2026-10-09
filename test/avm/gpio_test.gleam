@@ -1,10 +1,10 @@
 //// GPIO port API (`open` / `set_direction` / …).
 ////
-//// - ESP32 / STM32: port driver is owned — calls must succeed (IRQ too).
+//// - ESP32 / STM32: port driver is owned - calls must succeed (IRQ too).
 //// - Pico (gpio_hal): open / direction / level / read / close must Ok;
 ////   interrupts return NotSupported. If rp2040js still rejects direction,
-////   honest SKIP — never soft-pass as coverage.
-//// - GenericUnix: sysfs nif only (`gpio_unix_test`) — port exports NotSupported.
+////   honest SKIP - never soft-pass as coverage.
+//// - GenericUnix: sysfs nif only (`gpio_unix_test`) - port exports NotSupported.
 //// - Emscripten: no-op (unresolved gpio NIFs can abort Node WASM).
 
 import atomvm_gleam/atomvm
@@ -190,7 +190,7 @@ fn gpio_port_pico() -> Result(Nil, Failure) {
   ))
   let pin = gpio.pin(18)
   // gpio_hal: direction/level/read must work on RP2. rp2040js may still reject
-  // port direction — honest SKIP, not soft coverage.
+  // port direction - honest SKIP, not soft coverage.
   case gpio.set_direction(g, pin, gpio.Output) {
     Error(gpio.NotSupported) -> {
       let _ = gpio.close(g)

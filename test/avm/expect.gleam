@@ -2,7 +2,7 @@
 ////
 //// - Owning platform, API must work → [`must_ok`](#must_ok) / [`must_ok_value`](#must_ok_value)
 //// - Owning platform, call may fail for HW/QEMU reasons → [`ok_or_runtime`](#ok_or_runtime)
-////   (`NotSupported` / undef must still fail — missing module is never “fine”)
+////   (`NotSupported` / undef must still fail - missing module is never “fine”)
 //// - Off-platform → [`must_not_supported`](#must_not_supported)
 //// - Harness unavailable → `integration.skip` (no cover tag)
 
@@ -38,7 +38,7 @@ pub fn must_ok_value(
 
 /// Owning platform: `Ok` preferred; `is_runtime` errors are tolerated
 /// (HW missing, QEMU limit, no peer). `NotSupported` / undef must not be
-/// classified as runtime — those mean the module is absent on a platform
+/// classified as runtime - those mean the module is absent on a platform
 /// that should own it.
 pub fn ok_or_runtime(
   id: String,

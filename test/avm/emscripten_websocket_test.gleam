@@ -1,4 +1,4 @@
-//// Browser websocket NIF smoke (WASM). Node AtomVM has no XHR — opening
+//// Browser websocket NIF smoke (WASM). Node AtomVM has no XHR - opening
 //// a socket aborts the process, so we only hard-cover `is_supported` here.
 //// Remaining APIs are intentionally untested in this harness (honest skip),
 //// not fake-tagged as NotSupported.

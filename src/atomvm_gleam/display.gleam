@@ -1,10 +1,19 @@
+//// Typed Gleam wrappers for the [AtomGL](https://github.com/atomvm/atomgl)
+//// `display` port driver (ESP32 component; not part of AtomVM core).
+////
+//// Options and wiring: [display drivers](https://github.com/atomvm/atomgl/blob/main/docs/display-drivers.md).
+//// Display-list primitives: [primitives](https://github.com/atomvm/atomgl/blob/main/docs/primitives.md).
+//// Overview: [AtomGL README](https://github.com/atomvm/atomgl/blob/main/README.Md).
+////
+//// The port is opened with `erlang:open_port({spawn, <<"display">>}, Opts)` and
+//// driven with `port:call/2`; those are transport only - semantics live in AtomGL.
+
 import atomvm_gleam/spi.{type Spi}
 import gleam/option.{type Option}
 
-/// Opaque handle for an AtomGL `display` port, opened via
-/// `erlang:open_port({spawn, <<"display">>}, Opts)`.
+/// Opaque handle for an AtomGL `display` port.
 ///
-/// See [`erlang:open_port/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/erlang.html#open-port-2).
+/// See [AtomGL display drivers](https://github.com/atomvm/atomgl/blob/main/docs/display-drivers.md).
 pub type Display
 
 /// Backlight active level (`low` / `high`), matching AtomGL port options.
@@ -15,9 +24,10 @@ pub type ActiveLevel {
 
 /// Options passed to the AtomGL `display` port.
 ///
-/// Built into the Erlang proplist expected by
-/// [`erlang:open_port/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/erlang.html#open-port-2)
-/// with `{spawn, <<"display">>}`.
+/// Built into the Erlang proplist for
+/// `erlang:open_port({spawn, <<"display">>}, Opts)`. Field meanings match
+/// [AtomGL display drivers](https://github.com/atomvm/atomgl/blob/main/docs/display-drivers.md)
+/// (`compatible`, pins, backlight, `spi_host`, etc.).
 ///
 /// `clock_speed_hz` is optional; omit it (`None`) to keep AtomGL's panel default.
 pub type Config {
@@ -42,7 +52,7 @@ pub type Config {
 /// Open the AtomGL display port with the given options. Pin and panel values
 /// stay in the application so each workshop exercise shows the wiring.
 ///
-/// See [`erlang:open_port/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/estdlib/erlang.html#open-port-2).
+/// See [AtomGL display drivers](https://github.com/atomvm/atomgl/blob/main/docs/display-drivers.md).
 pub fn open(config: Config) -> Display {
   let Config(
     compatible:,
@@ -78,28 +88,30 @@ pub fn open(config: Config) -> Display {
   )
 }
 
-/// Push a display list to the panel. Item types are scene-specific and pass
-/// through as Erlang terms AtomGL already understands (`{update, Items}`).
-/// Common shapes include `text`, `rect`, `image` (`rgba8888`), and
-/// `scaled_cropped_image`.
+/// Push a display list to the panel via `{update, Items}`.
 ///
-/// See [`port:call/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/port.html#call-2).
+/// Common item shapes include `text`, `rect`, `image` (`rgba8888`), and
+/// `scaled_cropped_image`. Each update replaces the previous list.
+///
+/// See [AtomGL primitives](https://github.com/atomvm/atomgl/blob/main/docs/primitives.md).
 pub fn update(display: Display, items: List(a)) -> Nil {
   update_ffi(display, items)
 }
 
-/// Register a font binary under `name` for later `{text, …}` items.
+/// Register a font binary under `name` for later `{text, …}` items
+/// (`{register_font, Name, Bytes}`).
 ///
 /// `name` is turned into an Erlang atom (for example `"dogica"` → `dogica`).
-///
-/// See [`port:call/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/port.html#call-2).
+/// Font registration is implemented in AtomGL; it is not covered in the
+/// markdown driver docs - see the [AtomGL](https://github.com/atomvm/atomgl) sources.
 pub fn register_font(display: Display, name: String, bytes: BitArray) -> Nil {
   register_font_ffi(display, name, bytes)
 }
 
-/// Release a previously registered font.
+/// Release a previously registered font (`{deregister_font, Name}`).
 ///
-/// See [`port:call/2`](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/port.html#call-2).
+/// See the [AtomGL](https://github.com/atomvm/atomgl) sources (not in the
+/// markdown driver docs).
 pub fn deregister_font(display: Display, name: String) -> Nil {
   deregister_font_ffi(display, name)
 }

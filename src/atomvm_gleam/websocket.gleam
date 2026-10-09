@@ -57,8 +57,10 @@ pub fn error_to_string(error: Error) -> String {
   }
 }
 
-/// Open a websocket. Returns once the port exists — wait for `connected`
+/// Open a websocket. Returns once the port exists - wait for `connected`
 /// before sending.
+///
+/// See [`websocket_client:open/1`](https://github.com/nerves-hub/atomvm_websocket_client/blob/main/src/websocket_client.erl).
 pub fn open(config: Config) -> Result(Websocket, Error) {
   let Config(
     url:,
@@ -71,14 +73,20 @@ pub fn open(config: Config) -> Result(Websocket, Error) {
 }
 
 /// Send a text frame.
+///
+/// See [`websocket_client:send_text/2`](https://github.com/nerves-hub/atomvm_websocket_client/blob/main/src/websocket_client.erl).
 @external(erlang, "atomvm_gleam_websocket_ffi", "send_text")
 pub fn send_text(ws: Websocket, data: BitArray) -> Result(Nil, Error)
 
 /// Send a binary frame.
+///
+/// See [`websocket_client:send_binary/2`](https://github.com/nerves-hub/atomvm_websocket_client/blob/main/src/websocket_client.erl).
 @external(erlang, "atomvm_gleam_websocket_ffi", "send_binary")
 pub fn send_binary(ws: Websocket, data: BitArray) -> Result(Nil, Error)
 
 /// Close the connection.
+///
+/// See [`websocket_client:close/1`](https://github.com/nerves-hub/atomvm_websocket_client/blob/main/src/websocket_client.erl).
 @external(erlang, "atomvm_gleam_websocket_ffi", "close")
 pub fn close(ws: Websocket) -> Result(Nil, Error)
 

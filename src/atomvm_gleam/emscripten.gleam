@@ -28,10 +28,10 @@
 //// `{emscripten, {EventName, EventMap}}`.
 ////
 //// With user data (`register_*_with_user_data`):
-//// `{emscripten, {EventName, EventMap}, UserData}` — an outer 3-tuple; the
+//// `{emscripten, {EventName, EventMap}, UserData}` - an outer 3-tuple; the
 //// third element is the term you passed at register time (copied into the
 //// listener handle). User data is any Erlang term: Gleam `Int`, `String`,
-//// tuples, lists, atoms via FFI, etc. Keep it small — the handle retains a
+//// tuples, lists, atoms via FFI, etc. Keep it small - the handle retains a
 //// copy for the listener lifetime.
 ////
 //// If the registering process dies, that callback and any other callback for
@@ -232,7 +232,7 @@ pub fn error_to_string(error: Error) -> String {
 /// Run a script on the current worker thread (rarely useful alone).
 ///
 /// Prefer [`run_script_with`](#run_script_with) with `[MainThread]` or
-/// `[MainThread, Async]`. Exception handling is disabled — a throw or compile
+/// `[MainThread, Async]`. Exception handling is disabled - a throw or compile
 /// error crashes the VM.
 ///
 /// See [`emscripten:run_script/1`](https://doc.atomvm.org/release-0.7/apidocs/erlang/avm_emscripten/emscripten.html#run_script-1).

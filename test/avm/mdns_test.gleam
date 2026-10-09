@@ -1,4 +1,4 @@
-//// mDNS serialize/parse helpers — pure Erlang in atomvmlib / MCU firmware;
+//// mDNS serialize/parse helpers - pure Erlang in atomvmlib / MCU firmware;
 //// must Ok on unix + MCU. Emscripten: no-op.
 
 import atomvm_gleam/atomvm

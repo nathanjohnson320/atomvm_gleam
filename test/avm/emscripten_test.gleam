@@ -22,7 +22,7 @@ pub fn run() -> Result(Nil, Failure) {
     emscripten.get_tracked(tracked, emscripten.TrackedKey),
   ))
   // Promise APIs need a live Promise handle from JS; tag via NotSupported-style
-  // absence is wrong on WASM. Call with a bogus handle only if API accepts —
+  // absence is wrong on WASM. Call with a bogus handle only if API accepts;
   // skip destructive misuse; cover via negative off-platform instead.
   Ok(Nil)
 }

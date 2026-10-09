@@ -1,4 +1,4 @@
-//// POSIX file helpers — GenericUnix only.
+//// POSIX file helpers - GenericUnix only.
 
 import atomvm_gleam/atomvm
 import avm/check.{type Failure}

@@ -1,5 +1,5 @@
 //// HTTP server parse helpers. Live start/reply is `http_workflow_test`
-//// (GenericUnix only). Parse APIs are pure Erlang in atomvmlib — must Ok
+//// (GenericUnix only). Parse APIs are pure Erlang in atomvmlib - must Ok
 //// wherever the module is packed (unix / ESP). Off / WASM: no-op or NotSupported.
 
 import atomvm_gleam/atomvm

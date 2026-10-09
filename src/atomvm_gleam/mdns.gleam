@@ -30,9 +30,9 @@ pub type Ipv4Address {
 
 /// Options for [`start_link`](#start_link).
 ///
-/// - `hostname` — local name without `.local` (required)
-/// - `interface` — IPv4 address of the interface to advertise (required)
-/// - `ttl` — DNS TTL in seconds; omit for the upstream default (900)
+/// - `hostname` - local name without `.local` (required)
+/// - `interface` - IPv4 address of the interface to advertise (required)
+/// - `ttl` - DNS TTL in seconds; omit for the upstream default (900)
 ///
 /// See [`mdns:start_link/1`](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_network/src/mdns.erl).
 pub type Config {

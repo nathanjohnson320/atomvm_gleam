@@ -1,4 +1,4 @@
-//// HTML5 register/unregister — requires a browser DOM.
+//// HTML5 register/unregister - requires a browser DOM.
 
 import avm/check.{type Failure}
 

@@ -1,6 +1,6 @@
-//// UART — owned on ESP32, Pico, STM32, and unix (loopback suite).
+//// UART - owned on ESP32, Pico, STM32, and unix (loopback suite).
 ////
-//// ESP QEMU open can hang/WDT — SKIP unless INTEGRATION.
+//// ESP QEMU open can hang/WDT - SKIP unless INTEGRATION.
 //// Pico / STM32: open/write/close must Ok; short read may Timeout/Failed.
 //// Unix loopback is `uart_loopback_test`. Emscripten: no-op.
 

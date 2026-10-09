@@ -18,7 +18,7 @@ handle_req(_Method, Path, Conn) ->
 
 dispatch([], Conn) ->
     Body = <<"hello-gleam">>,
-    %% reply/4 (Gleam FFI) without closing — Content-Length lets the client
+    %% reply/4 (Gleam FFI) without closing - Content-Length lets the client
     %% finish parsing; immediate close races passive recv on generic_unix.
     atomvm_gleam_http_server_ffi:reply(200, Body, default_headers(Body), Conn);
 dispatch(["headers"], Conn) ->
@@ -31,7 +31,7 @@ dispatch(["headers"], Conn) ->
     ],
     atomvm_gleam_http_server_ffi:reply(200, Body, Hdrs, Conn);
 dispatch(["reply3"], Conn) ->
-    %% Gleam FFI reply/3 — sends default headers and closes the socket.
+    %% Gleam FFI reply/3 - sends default headers and closes the socket.
     atomvm_gleam_http_server_ffi:reply(200, <<"via-reply3">>, Conn);
 dispatch(_Path, Conn) ->
     atomvm_gleam_http_server_ffi:reply(404, <<"missing">>, Conn).

@@ -142,7 +142,7 @@ fn esp_off() -> Result(Nil, Failure) {
     Error(other) ->
       check.fail("network.sta_status: " <> network.error_to_string(other))
   })
-  // ssl.start/stop may crash when the SSL app is absent — covered on ESP32.
+  // ssl.start/stop may crash when the SSL app is absent - covered on ESP32.
   Ok(Nil)
 }
 

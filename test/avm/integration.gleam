@@ -1,7 +1,7 @@
 //// Shared helpers for integration / workflow suites.
 ////
 //// Soft hardware skips log `SKIP …` and return `Ok(Nil)` without coverage
-//// tags — missing harness must not count as covered. Never follow a skip with
+//// tags - missing harness must not count as covered. Never follow a skip with
 //// `cover_not_supported` for APIs that were not called.
 
 import avm/check.{type Failure}

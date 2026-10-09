@@ -132,7 +132,7 @@ PY
 
 fetch_pico() {
   # Release Pico-W UF2s hang under rp2040js (CYW43 / SMP). Build a plain Pico
-  # image with SMP disabled — same approach as AtomVM's own pico CI tests.
+  # image with SMP disabled - same approach as AtomVM's own pico CI tests.
   local emu_uf2="$ATOMVM_CACHE/pico/AtomVM-pico-emu-combined.uf2"
   fetch_pico_bootrom
   if [[ -f "$emu_uf2" ]]; then

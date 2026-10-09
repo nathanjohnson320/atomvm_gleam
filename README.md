@@ -56,3 +56,19 @@ See [`AGENTS.md`](./AGENTS.md) for contribution conventions.
 Each AtomVM runner re-packs `build/tests.avm` for its target (ESP32 / Pico omit
 host `atomvmlib` so platform modules are not shadowed) and prints
 `AVM_GLEAM_TESTS_OK` on success.
+
+### Integration / hardware env flags
+
+Emulators (ESP32 QEMU, Pico non-W rp2040js, Node WASM) honestly **SKIP** APIs
+that hang, lack radio/USB, or cannot sample hardware. Set these for real-board
+or live-network runs:
+
+| Flag / setup | Effect |
+|---|---|
+| `AVM_GLEAM_INTEGRATION=1` | Live paths that hang under QEMU / need silicon: ESP network STA, uart, usb_cdc, i2c/spi open, adc sample, ledc fade, websocket |
+| `AVM_GLEAM_GPIO_OUT` / `AVM_GLEAM_GPIO_IN` | Pin numbers for `gpio_int` edge-delivery (loop a wire between them) |
+| `AVM_GLEAM_WIFI_SSID` / `AVM_GLEAM_WIFI_PSK` | STA credentials (`PSK` may be empty for open networks) |
+| Pico-W firmware + `AVM_GLEAM_INTEGRATION=1` | `network` STA on wireless Pico; non-W emu correctly has no radio |
+
+Without these flags, CI stays green with SKIP — not soft Ok-or-NotSupported on
+owned APIs.

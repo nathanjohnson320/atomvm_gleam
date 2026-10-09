@@ -32,15 +32,33 @@ pub type Error {
 }
 
 /// GPIO pin. `PinNum` is a plain GPIO number (ESP32 and RP2). `WlPin` is a
-/// Pico-W wireless-bank pin and encodes as Erlang `{wl, N}` in the FFI.
+/// Pico-W wireless-bank pin (`{wl, N}`). `BankPin` is STM32 `{Bank, N}` where
+/// `Bank` is an atom `a`..`k`.
 ///
-/// Use `pin/1` and `wl/1` helpers at call sites. On Pico-W the onboard LED is
-/// `wl(0)` / `WlPin(0)` (`{wl, 0}`); `pico` CYW43 helpers are an alternate API.
+/// Use `pin/1`, `wl/1`, and `bank/2` helpers at call sites. On Pico-W the
+/// onboard LED is `wl(0)` / `WlPin(0)` (`{wl, 0}`); `pico` CYW43 helpers are an
+/// alternate API. On STM32 prefer `bank(B, 7)` for PB7.
 ///
-/// See RP2 [pin()](https://github.com/atomvm/AtomVM/blob/release-0.7/libs/avm_rp2/src/gpio.erl).
+/// See [gpio_hal pin()](https://doc.atomvm.org/release-0.7/apidocs/erlang/eavmlib/gpio_hal.html).
 pub type Pin {
   PinNum(Int)
   WlPin(Int)
+  BankPin(GpioBank, Int)
+}
+
+/// STM32 GPIO bank letter (`a`..`k`), encoded as the matching Erlang atom.
+pub type GpioBank {
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+  H
+  I
+  J
+  K
 }
 
 /// Wrap a numeric GPIO pin as `PinNum`.
@@ -53,6 +71,13 @@ pub fn pin(n: Int) -> Pin {
 /// Example: Pico-W LED is `wl(0)`.
 pub fn wl(n: Int) -> Pin {
   WlPin(n)
+}
+
+/// Wrap an STM32 bank+pin as `BankPin` (Erlang `{Bank, N}`).
+///
+/// Example: Nucleo LED often `bank(C, 13)` / `{c, 13}`.
+pub fn bank(bank: GpioBank, n: Int) -> Pin {
+  BankPin(bank, n)
 }
 
 /// Pin direction. Zero-arity variants encode as Erlang atoms matching

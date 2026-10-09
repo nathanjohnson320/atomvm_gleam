@@ -105,11 +105,13 @@ set_sysfs_base(Dir) ->
         gpio:set_sysfs_base(unicode:characters_to_list(Dir))
     end).
 
-%% Gleam `PinNum(N)` / `WlPin(N)` → AtomVM pin term (`N` or `{wl, N}`).
+%% Gleam `PinNum` / `WlPin` / `BankPin` → AtomVM pin term.
 pin_term({pin_num, N}) when is_integer(N) ->
     N;
 pin_term({wl_pin, N}) when is_integer(N) ->
-    {wl, N}.
+    {wl, N};
+pin_term({bank_pin, Bank, N}) when is_atom(Bank), is_integer(N) ->
+    {Bank, N}.
 
 level_atom(pin_high) ->
     high;

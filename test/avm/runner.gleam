@@ -25,6 +25,7 @@ import avm/pico_test
 import avm/portable_test
 import avm/posix_test
 import avm/pubsub_test
+import avm/spi_test
 import avm/ssl_test
 import avm/stm32_test
 import avm/uart_loopback_test
@@ -67,6 +68,7 @@ fn common_module_suites() -> List(#(String, fn() -> Result(Nil, Failure))) {
     #("ssl", ssl_test.run),
     #("http_server", http_server_test.run),
     #("i2c", i2c_test.run),
+    #("spi", spi_test.run),
   ]
 }
 

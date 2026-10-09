@@ -3,9 +3,9 @@
 
 open(Peripheral, Sclk, Mosi, Miso, Pico, Poci, Devices) ->
     try
-        Spi = spi:open(#{
+        case spi:open(#{
             bus_config => maps:from_list(
-                opt(peripheral, Peripheral) ++
+                opt_peripheral(Peripheral) ++
                     opt(sclk, Sclk) ++
                     opt(mosi, Mosi) ++
                     opt(miso, Miso) ++
@@ -13,17 +13,23 @@ open(Peripheral, Sclk, Mosi, Miso, Pico, Poci, Devices) ->
                     opt(poci, Poci)
             ),
             device_config => device_config_map(Devices)
-        }),
-        {ok, Spi}
+        }) of
+            {error, OpenReason} ->
+                wrap_reason(OpenReason);
+            Spi ->
+                {ok, Spi}
+        end
     catch
+        error:undef ->
+            {error, not_supported};
         error:badarg ->
             {error, badarg};
         error:not_supported ->
             {error, not_supported};
         error:timeout ->
             {error, timeout};
-        error:Reason when is_atom(Reason) ->
-            {error, {other, atom_to_binary(Reason, utf8)}};
+        error:CatchReason when is_atom(CatchReason) ->
+            {error, {other, atom_to_binary(CatchReason, utf8)}};
         _:_ ->
             {error, failed}
     end.
@@ -73,6 +79,20 @@ opt(_Key, none) ->
     [];
 opt(Key, {some, Value}) ->
     [{Key, Value}].
+
+%% ESP uses string/atom peripheral names; RP2/STM32 use integer ids.
+%% Digits-only Gleam strings become integers so one Option(String) API works.
+opt_peripheral(none) ->
+    [];
+opt_peripheral({some, Value}) when is_binary(Value) ->
+    case catch binary_to_integer(Value) of
+        N when is_integer(N) ->
+            [{peripheral, N}];
+        _ ->
+            [{peripheral, Value}]
+    end;
+opt_peripheral({some, Value}) ->
+    [{peripheral, Value}].
 
 device_atom(Name) when is_binary(Name) ->
     binary_to_atom(Name, utf8);

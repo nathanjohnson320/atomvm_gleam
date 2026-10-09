@@ -1,4 +1,6 @@
-//// USB CDC smoke on ESP32 (INTEGRATION for live open).
+//// USB CDC — owned on ESP32 / Pico / STM32 (AtomVM 0.7). Open can hang under
+//// QEMU / rp2040js — SKIP unless INTEGRATION (emu cannot prove ownership).
+//// Live: open_default/write/close must Ok; short reads may fail.
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/usb_cdc
@@ -8,89 +10,54 @@ import avm/integration
 import gleam/result
 
 pub fn run() -> Result(Nil, Failure) {
-  // usb_cdc open can crash / WDT under QEMU. Only exercise opens on INTEGRATION.
   case atomvm.platform() {
-    atomvm.Esp32 ->
-      case integration.env_flag("AVM_GLEAM_INTEGRATION") {
-        False -> {
-          use _ <- result.try(integration.skip(
-            "usb_cdc open (QEMU hang/badarg; set AVM_GLEAM_INTEGRATION=1)",
-          ))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.open_default"))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.open"))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.write"))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.read"))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.read_blocking"))
-          use _ <- result.try(check.cover_not_supported("usb_cdc.close"))
-          Ok(Nil)
-        }
-        True -> usb_cdc_esp32_live()
-      }
+    atomvm.Esp32 | atomvm.Pico | atomvm.Stm32 -> usb_cdc_mcu()
+    // Missing `usb_cdc` beam aborts (undef) rather than returning NotSupported
+    // from the current FFI — do not call off MCU.
     _ -> check.ok()
   }
 }
 
-fn usb_cdc_esp32_live() -> Result(Nil, Failure) {
-  use c_r <- result.try(expect.ok_value_or_not_supported(
+fn usb_cdc_read_runtime(e: usb_cdc.Error) -> Bool {
+  case e {
+    usb_cdc.NotSupported -> False
+    _ -> True
+  }
+}
+
+fn usb_cdc_mcu() -> Result(Nil, Failure) {
+  case integration.env_flag("AVM_GLEAM_INTEGRATION") {
+    False ->
+      integration.skip(
+        "usb_cdc open (QEMU hang/badarg; set AVM_GLEAM_INTEGRATION=1)",
+      )
+    True -> usb_cdc_live()
+  }
+}
+
+fn usb_cdc_live() -> Result(Nil, Failure) {
+  use c <- result.try(expect.must_ok_value(
     "usb_cdc.open_default",
     usb_cdc.open_default(usb_cdc.default_config()),
-    fn(e) {
-      case e {
-        usb_cdc.NotSupported -> True
-        usb_cdc.Other(reason) -> expect.is_undef_reason(reason)
-        _ -> False
-      }
-    },
     usb_cdc.error_to_string,
   ))
-  case c_r {
-    Error(Nil) -> {
-      use _ <- result.try(check.cover_not_supported("usb_cdc.open"))
-      use _ <- result.try(check.cover_not_supported("usb_cdc.write"))
-      use _ <- result.try(check.cover_not_supported("usb_cdc.read"))
-      use _ <- result.try(check.cover_not_supported("usb_cdc.read_blocking"))
-      use _ <- result.try(check.cover_not_supported("usb_cdc.close"))
-      Ok(Nil)
-    }
-    Ok(c) -> {
-      use _ <- result.try(check.cover("usb_cdc.open", check.ok()))
-      use _ <- result.try(expect.ok_or_not_supported(
-        "usb_cdc.write",
-        usb_cdc.write(c, <<"x">>),
-        fn(e) {
-          case e {
-            usb_cdc.NotSupported -> True
-            usb_cdc.Other(reason) -> expect.is_undef_reason(reason)
-            _ -> False
-          }
-        },
-        usb_cdc.error_to_string,
-      ))
-      use _ <- result.try(expect.ok_or_not_supported(
-        "usb_cdc.read",
-        usb_cdc.read(c, 10),
-        fn(e) {
-          case e {
-            usb_cdc.NotSupported -> True
-            usb_cdc.Other(reason) -> expect.is_undef_reason(reason)
-            _ -> False
-          }
-        },
-        usb_cdc.error_to_string,
-      ))
-      use _ <- result.try(expect.ok_or_not_supported(
-        "usb_cdc.read_blocking",
-        usb_cdc.read_blocking(c),
-        fn(e) {
-          case e {
-            usb_cdc.NotSupported -> True
-            usb_cdc.Other(reason) -> expect.is_undef_reason(reason)
-            _ -> False
-          }
-        },
-        usb_cdc.error_to_string,
-      ))
-      check.cover_ok("usb_cdc.close", usb_cdc.close(c))
-    }
-  }
+  use _ <- result.try(check.cover("usb_cdc.open", check.ok()))
+  use _ <- result.try(expect.must_ok(
+    "usb_cdc.write",
+    usb_cdc.write(c, <<"x">>),
+    usb_cdc.error_to_string,
+  ))
+  use _ <- result.try(expect.ok_or_runtime(
+    "usb_cdc.read",
+    usb_cdc.read(c, 10),
+    usb_cdc_read_runtime,
+    usb_cdc.error_to_string,
+  ))
+  use _ <- result.try(expect.ok_or_runtime(
+    "usb_cdc.read_blocking",
+    usb_cdc.read_blocking(c),
+    usb_cdc_read_runtime,
+    usb_cdc.error_to_string,
+  ))
+  expect.must_ok("usb_cdc.close", usb_cdc.close(c), usb_cdc.error_to_string)
 }

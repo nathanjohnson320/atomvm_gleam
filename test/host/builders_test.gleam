@@ -25,6 +25,9 @@ pub fn gpio_pin_wl_test() {
   assert gpio.pin(4) == gpio.PinNum(4)
   // COVER: gpio.wl
   assert gpio.wl(0) == gpio.WlPin(0)
+  // COVER: gpio.bank
+  assert gpio.bank(gpio.B, 7) == gpio.BankPin(gpio.B, 7)
+  assert gpio.bank(gpio.C, 13) == gpio.BankPin(gpio.C, 13)
 }
 
 pub fn ledc_speed_modes_test() {

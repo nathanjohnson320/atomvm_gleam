@@ -1,4 +1,5 @@
-//// mDNS serialize/parse helpers.
+//// mDNS serialize/parse helpers — pure Erlang in atomvmlib / MCU firmware;
+//// must Ok on unix + MCU. Emscripten: no-op.
 
 import atomvm_gleam/atomvm
 import atomvm_gleam/mdns
@@ -9,37 +10,20 @@ import gleam/result
 pub fn run() -> Result(Nil, Failure) {
   case atomvm.platform() {
     atomvm.Emscripten -> check.ok()
-    _ -> mdns_helpers()
+    atomvm.GenericUnix | atomvm.Esp32 | atomvm.Pico | atomvm.Stm32 ->
+      mdns_helpers_owned()
   }
 }
 
-fn mdns_helpers() -> Result(Nil, Failure) {
-  use _ <- result.try(expect.ok_or_not_supported(
+fn mdns_helpers_owned() -> Result(Nil, Failure) {
+  use wire <- result.try(expect.must_ok_value(
     "mdns.serialize_dns_name",
     mdns.serialize_dns_name([<<"a">>, <<"local">>]),
-    fn(e) {
-      case e {
-        mdns.NotSupported -> True
-        mdns.Other(reason) -> expect.is_undef_reason(reason)
-        _ -> False
-      }
-    },
     mdns.error_to_string,
   ))
-  use wire <- result.try(case mdns.serialize_dns_name([<<"a">>, <<"local">>]) {
-    Ok(bytes) -> Ok(bytes)
-    Error(_) -> Ok(<<0>>)
-  })
-  use _ <- result.try(expect.ok_or_not_supported(
+  use _ <- result.try(expect.must_ok(
     "mdns.parse_dns_name",
     mdns.parse_dns_name(wire, wire),
-    fn(e) {
-      case e {
-        mdns.NotSupported -> True
-        mdns.Other(reason) -> expect.is_undef_reason(reason)
-        _ -> False
-      }
-    },
     mdns.error_to_string,
   ))
   let msg =
@@ -53,21 +37,12 @@ fn mdns_helpers() -> Result(Nil, Failure) {
       authority_rr: [],
       additional_rr: [],
     )
-  use _ <- result.try(expect.ok_or_not_supported(
+  use _ <- result.try(expect.must_ok(
     "mdns.serialize_dns_message",
     mdns.serialize_dns_message(msg),
-    fn(e) {
-      case e {
-        mdns.NotSupported -> True
-        mdns.Other(reason) -> expect.is_undef_reason(reason)
-        _ -> False
-      }
-    },
     mdns.error_to_string,
   ))
-  use _ <- result.try(case mdns.parse_dns_message(<<>>) {
+  case mdns.parse_dns_message(<<>>) {
     Ok(_) | Error(_) -> check.cover("mdns.parse_dns_message", check.ok())
-  })
-  // mdns.start_link opens UDP and can crash the VM off-ESP — ESP32 only.
-  Ok(Nil)
+  }
 }
